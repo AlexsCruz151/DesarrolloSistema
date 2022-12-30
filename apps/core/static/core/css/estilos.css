@@ -1,0 +1,50 @@
+/** TIPOGRAFIA MANUAL DE MARCA **/
+
+@font-face {
+  font-family: OfficinaSerifBold;
+  src: url('../fonts/officina_serif_bold.otf') format("opentype");
+}
+
+.menuTexto {
+    font-family: OfficinaSerifBold !important;
+}
+
+.titulos {
+    font-family: OfficinaSerifBold !important;
+    color: #ffffff !important;
+    font-size: 25px;
+    margin-bottom: 10px;
+}
+
+.descripciones {
+    font-family: OfficinaSerifBold !important;
+    color: #000000 !important;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.icon_menu {
+    color: white !important;
+}
+
+.sb-sidenav-menu {
+    background-color:#14578b ;
+}
+
+.card-header{
+    background-color: #14578b !important;
+}
+
+.btn-defaultd {
+    background-color: #00aeef !important;
+    color: white !important;
+}
+
+.btn-success {
+    color: white !important;
+}
+
+.btn-warning{
+    color: black !important;
+}
+

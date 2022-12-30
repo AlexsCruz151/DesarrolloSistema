@@ -1,1 +1,19 @@
-# Hola
+django==3.2.*
+dj-database-url
+python-decouple
+django-uuid-upload
+Pillow
+django-solo
+django-python3-ldap
+django-minio-storage
+psycopg2-binary
+gunicorn
+django-currentuser
+django-ipware
+django-session-timeout
+whitenoise
+
+# conda update --all -y
+# conda create -n sistemaCastro python=3.10.* -y
+# conda activate sistemaCastro
+# pip install django==3.2.*

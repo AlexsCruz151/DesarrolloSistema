@@ -1,0 +1,79 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>INATEC</title>
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'core/vendor/sb-admin/css/sb-admin.min.css' %}">
+    <link rel="stylesheet" href="{% static 'core/vendor/sweetalert2/css/sweetalert2.min.css' %}">
+    <style>
+        .card-login {
+            max-width: 25rem;
+        }
+
+        .bg-fondo {
+            background-image: url("{% static 'core/images/fondo.png' %}");
+        }
+    </style>
+</head>
+<body class="d-flex flex-column h-100 bg-fondo">
+<main class="flex-shrink-0">
+    <div class="container">
+        <section id="message_loader">
+        </section>
+        <section class="d-none d-md-block">
+            <div class="d-flex align-items-center justify-content-around my-5">
+                <img class="img-fluid" src="{% static 'core/images/logo_gobierno.png' %}" alt="..."
+                     style="height: 7rem !important;">
+                <img class="img-fluid" src="{% static 'core/images/logo_inatec.png' %}" alt="..."
+                     style="height: 7rem !important;">
+            </div>
+        </section>
+        <div class="row d-none d-md-block">
+            <div class="col text-center text-light">
+                <h2><strong>Sistema de Facturación 2%</strong></h2>
+            </div>
+        </div>
+        <div class="card card-login mx-auto my-5 border-0">
+            <div class="card-header text-center text-light text-uppercase" style="background-color: #19538C;">
+                <strong>Iniciar Sesión</strong>
+            </div>
+            <div class="card-body">
+                <form id="frm_login" data-url="{% url 'usuarios:login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="d-none">Usuario</label>
+                        <input type="text" id="id_username" name="username" class="form-control" placeholder="Usuario"
+                               required="required">
+
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="d-none">Contraseña</label>
+                        <input type="password" id="id_password" name="password" class="form-control"
+                               placeholder="Contraseña" autocomplete="" required="required">
+                    </div>
+                    <button class="btn btn-success w-100" type="submit">Acceder</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<footer class="mt-auto" style="background-color: #165C92;">
+    <div class="container-fluid my-3">
+        <div class="text-center text-light">
+            <span>Derechos Reservados © INATEC {% now 'Y' %}</span>
+        </div>
+    </div>
+</footer>
+<script src="{% static 'core/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'core/vendor/jquery/js/jquery.min.js' %}"></script>
+<script src="{% static 'core/vendor/sweetalert2/js/sweetalert2.min.js' %}"></script>
+<script src="{% static 'core/vendor/sb-admin/js/sb-admin.min.js' %}"></script>
+<script src="{% static 'core/js/core.min.js' %}"></script>
+<script src="{% static 'usuarios/js/login.min.js' %}"></script>
+</body>
+</html>
