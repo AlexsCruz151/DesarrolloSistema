@@ -1,11 +1,13 @@
 from http import HTTPStatus
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
+from django.shortcuts import render
 
 
 class LoginView(TemplateView):
@@ -45,7 +47,6 @@ class LoginView(TemplateView):
             status = HTTPStatus.METHOD_NOT_ALLOWED
         return JsonResponse(data=data, status=status)
 
-
 class LogoutView(LoginRequiredMixin, View):
     def dispatch(self, *args, **kwargs):
         if self.request.user.is_authenticated:
@@ -55,3 +56,11 @@ class LogoutView(LoginRequiredMixin, View):
                 next_url = reverse_lazy('core:home')
             return HttpResponseRedirect(next_url)
         return super(LogoutView, self).dispatch(*args, **kwargs)
+
+class ListView(TemplateView):
+    template_name = 'usuarios/usuariosView.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['users'] = User.objects.all()
+        return context
