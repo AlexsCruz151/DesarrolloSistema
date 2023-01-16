@@ -3,11 +3,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
 from django.shortcuts import render
+from django.http import HttpResponseNotFound, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db import transaction, connection
 
 
 class LoginView(TemplateView):
@@ -64,3 +68,35 @@ class ListView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['users'] = User.objects.all()
         return context
+
+def RegistrarUsuario(request,*args, **kwargs):
+    error = False
+    mensaje = ''
+    opcionError = 0 # 1: Existe usuario
+
+    try:
+        with transaction.atomic():
+            usuario = str(request.POST.get('usuario'))
+
+            try:
+                User.objects.get(username=usuario)
+                optionError = 1
+                error = True
+                mensaje = 'Ya existe el usuario '+usuario
+            except ObjectDoesNotExist:
+                optionError = 0
+
+            if optionError == 0:
+                nombres = str(request.POST.get('nombres'))
+                apellidos = str(request.POST.get('apellidos'))
+                correo = str(request.POST.get('correo'))
+                estadoSuperUsuario = bool(request.POST.get('estadoSuperUsuario'))
+                estadoActivo = bool(request.POST.get('estadoActivo'))
+                user = User.objects.create_user(username=usuario,first_name=nombres, last_name=apellidos,email=correo,is_superuser=estadoSuperUsuario,is_staff=True,is_active=estadoActivo)
+                user.save()
+                mensaje = 'Usuario guardado correctamente'
+    except Exception as e:
+        error = True
+        mensaje = str(e)
+
+    return JsonResponse({'error':error,'mensaje':mensaje,'option':optionError})

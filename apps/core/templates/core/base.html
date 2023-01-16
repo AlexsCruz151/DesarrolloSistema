@@ -27,6 +27,10 @@
                 color: white !important;
             }
 
+            .active {
+                border-left: 3px solid
+            }
+
 
         </style>
     {% endblock %}
@@ -43,7 +47,8 @@
 
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark menuTexto" style="background-color: #17627e !important;">
     <a class="navbar-brand ps-3" href="{% url 'core:home' %}">SISTEMA CASTRO</a>
-    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" style="color: #ffffff !important;">
+    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle"
+            style="color: #ffffff !important;">
         <i class="fas fa-bars"></i>
     </button>
 
@@ -61,7 +66,8 @@
 </nav>
 <div id="layoutSidenav">
     <div id="layoutSidenav_nav">
-        <nav class="sb-sidenav accordion sb-sidenav-dark menuTexto" id="sidenavAccordion" style="background-color: #17627e !important">
+        <nav class="sb-sidenav accordion sb-sidenav-dark menuTexto" id="sidenavAccordion"
+             style="background-color: #17627e !important">
             <div class="sb-sidenav-menu">
                 <div class="nav">
                     <a class="nav-link" href="{% url 'core:home' %}">
@@ -83,26 +89,47 @@
                         </nav>
                     </div>
 
+
+                     <a class="nav-link" href="{% url 'core:home' %}">
+                        <div class="sb-nav-link-icon icon_menu"><i class="fas fa-stream"></i></div>
+                        Bodega
+                    </a>
+
+
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productos"
+                       aria-expanded="false" aria-controls="productos">
+                        <div class="sb-nav-link-icon icon_menu"><i class="fas fa-stream"></i></div>
+                        Productos
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="productos" aria-labelledby="headingOne"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{% url 'usuarios:list' %}">Categorías</a>
+                            <a class="nav-link" href="#">Productos</a>
+                        </nav>
+                    </div>
+
                 </div>
             </div>
         </nav>
     </div>
     <div id="layoutSidenav_content" style="background-color: whitesmoke">
         <main>
-            <div class="container-fluid" >
+            <div class="container-fluid">
                 <section id="message_loader">
                 </section>
                 {% block content %}
                 {% endblock %}
             </div>
         </main>
-{#        <footer class="py-3 bg-dark mt-auto" style="background-color: #ff0085 !important;">#}
-{#            <div class="container-fluid">#}
-{#                <div class="text-center text-light menuTexto">#}
-{#                    <span>Derechos Reservados © SISTEMA CASTRO {% now 'Y' %}</span>#}
-{#                </div>#}
-{#            </div>#}
-{#        </footer>#}
+        <footer class="py-3 bg-dark mt-auto shadow" style="background-color: #ffff !important; height: 40px">
+            <div class="container-fluid" style="margin-top: -5px">
+                <div class="text-center text-light menuTexto">
+                    <span style="color: #17627E">Derechos Reservados © SISTEMA CASTRO {% now 'Y' %}</span>
+                </div>
+            </div>
+        </footer>
     </div>
 </div>
 {% block modals %}
@@ -128,6 +155,14 @@
 <script src="{% static 'core/vendor/sb-admin/js/sb-admin.min.js' %}"></script>
 <script src="{% static 'core/js/core.min.js' %}"></script>
 <script src="{% static 'core/js/loader.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        $(".nav-link").click(function () {
+        });
+
+    });
+</script>
 
 {% block scripts %}
 {% endblock %}

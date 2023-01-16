@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'django_python3_ldap',
     'solo',
     'apps.core',
-    'apps.usuarios'
+    'apps.usuarios',
+    'apps.public',
 ]
 
 MIDDLEWARE = [
