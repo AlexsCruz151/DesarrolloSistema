@@ -14,13 +14,10 @@
         {# MENU #}
         <nav class="navbar navbar-light bg-white" style="margin-top:10px;  border-left: 3px solid #0d6efd">
             <div class="container">
-                <h5 class="float-left" style="color:#0d6efd">USUARIOS </h5>
+                <h5 class="float-left" style="color:#0d6efd">CATEGORÍAS </h5>
                 <div class="float-left">
-                    <button id="btnAddUsuarios" type="button" class="btn btn-primary">
-                        <i class="fas fa-plus-square"> </i> Agregar usuarios
-                    </button>
-                    <button type="button" class="btn btn-primary">
-                        <i class="fas fa-plus-square"></i> Roles
+                    <button id="btnAddCategoria" type="button" class="btn btn-primary">
+                        <i class="fas fa-plus-square"> </i> Agregar Categoría
                     </button>
                 </div>
             </div>
@@ -39,46 +36,29 @@
                     <thead>
                     <tr>
                         <th style="font-size: 15px">CÓDIGO</th>
-                        <th style="font-size: 15px">NOMBRES</th>
-                        <th style="font-size: 15px">APELLIDOS</th>
-                        <th style="font-size: 15px">FECHA GRABACIÓN</th>
-                        <th style="font-size: 15px">SÚPER USUARIO</th>
+                        <th style="font-size: 15px">DESCRIPCIÓN</th>
                         <th style="font-size: 15px">ESTADO</th>
-                        <th style="font-size: 15px">ÚLTIMA CONEXIÓN</th>
                         <th style="font-size: 15px">ACCIONES</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for user in users %}
+                    {% for c in categorias %}
                         <tr>
-                            <td style="font-size:15px">{{ user.id }}</td>
-                            <td style="font-size:15px">{{ user.first_name }}</td>
-                            <td style="font-size:15px">{{ user.last_name }}</td>
-                            <td style="font-size:15px">{{ user.date_joined }}</td>
-
+                            <td style="font-size:15px">{{ c.id }}</td>
+                            <td style="font-size:15px">{{ c.descripcion }}</td>
                             <td>
-                                {% if user.is_staff %}
-                                    <span class="badge rounded-pill bg-success">Si</span>
-                                {% else %}
-                                    <span class="badge rounded-pill bg-danger">No</span>
-                                {% endif %}
-                            </td>
-
-                            <td>
-                                {% if user.is_active %}
+                                {% if c.estado == 1 %}
                                     <span class="badge rounded-pill bg-success">Activo</span>
                                 {% else %}
                                     <span class="badge rounded-pill bg-danger">Inactivo</span>
                                 {% endif %}
                             </td>
 
-                            <td style="font-size:15px">{{ user.last_login|default_if_none:'No ha ingresado' }}
-                            </td>
                             <td>
                                 <button data-toggle="tooltip" title="Editar usuario" type="button"
-                                        class="btn btn-success"><i class="fas fa-pen"></i></button>
+                                        class="btn btn-success btnEdit" data-id="{{ c.id }}" data-descripcion="{{ c.descripcion }}"><i class="fas fa-pen"></i></button>
                                 <button data-toggle="tooltip" title="Eliminar usuario" type="button"
-                                        class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                        class="btn btn-danger btnDelete" data-id="{{ c.id }}"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -89,11 +69,11 @@
     </div>
 
 
-    <div class="modal fade" id="mdlUsuarios" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="mdlCategoria" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: #d3e1e7">
-                    <h5 class="modal-title" id="exampleModalLabel">AÑADIR USUARIO</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">AÑADIR CATEGORÍA</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -107,57 +87,18 @@
                                            aria-describedby="basic-addon1">
                                 </div>
                             </div>
-                            <div class="col col-sm-6">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>
-                                    <input id="txtUsuario" type="text" class="form-control" placeholder="Usuario"
-                                           aria-label="Usuario"
-                                           aria-describedby="basic-addon1">
-                                    <div class="invalid-feedback">Usuario no válido</div>
-                                </div>
-                            </div>
                         </div>
                         <div class="row">
-                            <div class="col col-sm-6">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>
-                                    <input id="txtNombres" type="text" class="form-control" placeholder="Nombres"
-                                           aria-label="Nombres"
-                                           aria-describedby="basic-addon1">
-                                    <div class="invalid-feedback">Ingrese el nombre</div>
-                                </div>
-                            </div>
-                            <div class="col sol-sm-6">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>
-                                    <input id="txtApellidos" type="text" class="form-control" placeholder="Apellidos"
-                                           aria-label="Apellidos"
-                                           aria-describedby="basic-addon1">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col col-sm-6">
+                            <div class="col col-sm-9">
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i
-                                            class="fas fa-envelope"></i></span>
-                                    <input id="txtCorreo" type="text" class="form-control"
-                                           placeholder="Correo Electrónico"
+                                            class="fas fa-edit"></i></span>
+                                    <input maxlength="50" id="txtDescripcion" type="text" class="form-control"
+                                           placeholder="Descripción de Categoría"
                                            aria-label="correo"
                                            aria-describedby="basic-addon1">
-                                    <div class="invalid-feedback">Correo no válido</div>
+                                    <div class="invalid-feedback">Descripción no válida</div>
 
-                                </div>
-                            </div>
-                            <div class="col col-sm-3">
-                                <div class="input-group mb-3">
-                                    <div class="input-group-text">
-                                        <input id="checkSuperUsuario" class="form-check-input mt-0" type="checkbox"
-                                               value=""
-                                               aria-label="Checkbox for following text input">
-                                    </div>
-                                    <input type="text" class="form-control" aria-label="Text input with checkbox"
-                                           disabled="disabled" value="Super usuario">
                                 </div>
                             </div>
                             <div class="col col-sm-3">
@@ -173,28 +114,6 @@
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col col-sm-6">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i
-                                            class="fas fa-unlock"></i></span>
-                                    <input type="password" id="txtPasswordUno" class="form-control"
-                                           placeholder="Contraseña"
-                                           aria-label="Password"
-                                           aria-describedby="basic-addon1">
-                                </div>
-                            </div>
-                            <div class="col sol-sm-6">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-lock"></i></span>
-                                    <input type="password" id="txtPasswordDos" class="form-control"
-                                           placeholder="Repita Contraseña"
-                                           aria-label="Username"
-                                           aria-describedby="basic-addon1">
-                                    <div class="invalid-feedback">No coincide con la primer contraseña</div>
-                                </div>
-                            </div>
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -219,11 +138,14 @@
 {% block scripts %}
     <script>
 
+    var gId = null;
+
         {# INICIO DEL CÓDIGO EN JAVASCRIPT #}
         $(document).ready(function () {
 
-            $("#btnAddUsuarios").click(function () {
-                $("#mdlUsuarios").modal("show");
+            $("#btnAddCategoria").click(function () {
+                gId = null;
+                $("#mdlCategoria").modal("show");
             });
 
             $('[data-toggle="tooltip"]').tooltip();
@@ -245,73 +167,53 @@
             });
 
             $("#btnSave").click(function () {
-                saveUser();
+                if(gId == null)
+                    save();
+                else
+                    update()
+            });
+
+            $(".btnEdit").click(function () {
+                let id = $(this).data('id');
+                gId = id;
+                let descripcion = $(this).data('descripcion');
+                $("#txtCodigo").val(id);
+                $("#txtDescripcion").val(descripcion);
+                $("#mdlCategoria").modal("show");
             });
 
         });
 
         // GUARDAR USUARIO
-        function saveUser() {
+        function save() {
 
             let codigo = $("#txtCodigo").val().trim();
-            let usuario = $("#txtUsuario").val().trim();
-            let nombres = $("#txtNombres").val().trim();
-            let apellidos = $("#txtApellidos").val().trim();
-            let correo = $("#txtCorreo").val().trim();
-            let contraseniaUno = $("#txtPasswordUno").val().trim();
-            let contraseniaDos = $("#txtPasswordDos").val().trim();
-            let estadoSuperUsuario = false;
+            let descripcion = $("#txtDescripcion").val().trim();
             let estadoActivo = false;
             let estadoSave = true
-
-            if ($("#checkSuperUsuario").is(":checked"))
-                estadoSuperUsuario = true;
 
             if ($("#checkActivo").is(":checked"))
                 estadoActivo = true;
 
-            if (usuario == "")
-                $("#txtUsuario").addClass("is-invalid");
-            if (nombres == "")
-                $("#txtNombres").addClass("is-invalid");
-            if (apellidos == "")
-                $("#txtApellidos").addClass("is-invalid");
-            if (correo == "")
-                $("#txtCorreo").addClass("is-invalid");
+            if (descripcion == "")
+                $("#txtDescripcion").addClass("is-invalid");
 
-            if (nombres == "" || apellidos == "" || correo == "")
+            if (descripcion == "")
                 estadoSave = false
-
-            if (!correo.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) {
-                estadoSave = false;
-                $("#txtCorreo").addClass("is-invalid");
-            }
-
-            if (contraseniaUno != contraseniaDos) {
-                $("#txtPasswordDos").addClass("is-invalid");
-                estadoSave = false;
-            }
 
             if (estadoSave) {
                 let datos = {};
                 datos['csrfmiddlewaretoken'] = $("input[name='csrfmiddlewaretoken']").val();
-                datos['usuario'] = usuario;
-                datos['codigo'] = codigo;
-                datos['nombres'] = nombres;
-                datos['apellidos'] = apellidos;
-                datos['correo'] = correo;
-                datos['estadoSuperUsuario'] = estadoSuperUsuario;
+                datos['descripcion'] = descripcion;
                 datos['estadoActivo'] = estadoActivo;
-                datos['contrasenia'] = contraseniaDos;
 
-                alertify.confirm('CONFIRMACIÓN', '¿Dsea guardar usuario?', function () {
+                alertify.confirm('CONFIRMACIÓN', '¿Dsea guardar categoría?', function () {
                         $.ajax({
                             type: 'POST',
-                            url: "{% url 'usuarios:registrar'%} ",
+                            url: "{% url 'public:categoria'%} ",
                             data: datos,
                             dataType: 'json',
                             success: function (respuesta) {
-
                                 if (respuesta.error) {
                                     if (respuesta.option == "1") {
                                         Toast.fire({
@@ -320,7 +222,83 @@
                                             timer: 5000
                                         });
 
-                                        $("#txtUsuario").addClass("is-invalid");
+                                        $("#txtDescripcion").addClass("is-invalid");
+
+                                    } else {
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: respuesta.mensaje,
+                                            timer: 5000
+                                        });
+                                        showLoad(false);
+                                    }
+
+                                } else {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: respuesta.mensaje,
+                                        timer: 10000
+                                    });
+                                    showLoad(false);
+                                    window.reload();
+                                }
+                            },
+                            error: function (error) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: 'Error de administraciónn',
+                                    timer: 10000
+                                });
+                            },
+                        });
+                    }
+                    , function () {
+                    }).set('labels', {ok: 'Aceptar', cancel: 'Cancelar'},);
+            }
+
+
+        }
+
+        // GUARDAR USUARIO
+        function update() {
+
+            let codigo = $("#txtCodigo").val().trim();
+            let descripcion = $("#txtDescripcion").val().trim();
+            let estadoActivo = false;
+            let estadoSave = true
+
+            if ($("#checkActivo").is(":checked"))
+                estadoActivo = true;
+
+            if (descripcion == "")
+                $("#txtDescripcion").addClass("is-invalid");
+
+            if (descripcion == "")
+                estadoSave = false
+
+            if (estadoSave) {
+                let datos = {};
+                datos['csrfmiddlewaretoken'] = $("input[name='csrfmiddlewaretoken']").val();
+                datos['id'] = gId;
+                datos['descripcion'] = descripcion;
+                datos['estadoActivo'] = estadoActivo;
+
+                alertify.confirm('CONFIRMACIÓN', '¿Desea actualizar categoría?', function () {
+                        $.ajax({
+                            type: 'POST',
+                            url: "{% url 'public:updateCategoria'%} ",
+                            data: datos,
+                            dataType: 'json',
+                            success: function (respuesta) {
+                                if (respuesta.error) {
+                                    if (respuesta.option == "1") {
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: respuesta.mensaje,
+                                            timer: 5000
+                                        });
+
+                                        $("#txtDescripcion").addClass("is-invalid");
 
                                     } else {
                                         Toast.fire({
