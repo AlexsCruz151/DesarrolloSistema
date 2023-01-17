@@ -57,7 +57,7 @@ class LogoutView(LoginRequiredMixin, View):
             logout(self.request)
             next_url = self.request.GET.get('next')
             if next_url is None:
-                next_url = reverse_lazy('core:home')
+                next_url = reverse_lazy('usuario:login')
             return HttpResponseRedirect(next_url)
         return super(LogoutView, self).dispatch(*args, **kwargs)
 
@@ -92,7 +92,8 @@ def RegistrarUsuario(request,*args, **kwargs):
                 correo = str(request.POST.get('correo'))
                 estadoSuperUsuario = bool(request.POST.get('estadoSuperUsuario'))
                 estadoActivo = bool(request.POST.get('estadoActivo'))
-                user = User.objects.create_user(username=usuario,first_name=nombres, last_name=apellidos,email=correo,is_superuser=estadoSuperUsuario,is_staff=True,is_active=estadoActivo)
+                password = request.POST.get('contrasenia')
+                user = User.objects.create_user(username=usuario,first_name=nombres, last_name=apellidos,email=correo,is_superuser=estadoSuperUsuario,is_staff=True,is_active=estadoActivo,password=password)
                 user.save()
                 mensaje = 'Usuario guardado correctamente'
     except Exception as e:
