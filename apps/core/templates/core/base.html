@@ -89,13 +89,13 @@
                         </nav>
                     </div>
 
-
-                     <a class="nav-link" href="{% url 'core:home' %}">
+                    {# BODEGA #}
+                    <a class="nav-link" href="{% url 'core:home' %}">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-warehouse"></i></div>
                         Bodega
                     </a>
 
-
+                    {# PRODUCTOS #}
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productos"
                        aria-expanded="false" aria-controls="productos">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-store"></i></div>
@@ -108,6 +108,20 @@
                             <a class="nav-link" href="{% url 'public:categoria' %}">Categorías</a>
                             <a class="nav-link" href="{% url 'public:piezas' %}">Piezas</a>
                             <a class="nav-link" href="{% url 'public:productopiezas' %}">Mano Factura</a>
+                        </nav>
+                    </div>
+
+                    {# CONFIGURACIÓN #}
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#configuracion"
+                       aria-expanded="false" aria-controls="configuracion">
+                        <div class="sb-nav-link-icon icon_menu"><i class="fas fa-cog"></i></div>
+                        Configuración
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="configuracion" aria-labelledby="headingOne"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{% url 'public:categoria' %}">Empresa</a>
                         </nav>
                     </div>
 

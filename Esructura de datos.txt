@@ -1,0 +1,30 @@
+Empresas
+- id
+- descripcion
+- estado
+
+Categorias
+- id
+- descripcion
+- estado
+- empresas_id
+
+Piezas
+- id
+- descripcion
+- imagen
+- cantidad
+- precio
+- estado
+
+Productos
+- id
+- Descripcion
+- imagen
+- precio
+
+ProductosPiezas
+- id
+- producto_id
+- pieza_id
+- Estado

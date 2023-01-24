@@ -113,6 +113,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = BASE_DIR / 'static'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -127,3 +129,4 @@ SESSION_TIMEOUT_REDIRECT = '/'
 # Tamaño de memoria
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800 # 50 MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800 # 50 MB
+
