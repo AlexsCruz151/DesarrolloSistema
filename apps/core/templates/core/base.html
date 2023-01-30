@@ -121,7 +121,7 @@
                     <div class="collapse" id="configuracion" aria-labelledby="headingOne"
                          data-bs-parent="#sidenavAccordion">
                         <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{% url 'public:categoria' %}">Empresa</a>
+                            <a class="nav-link" href="{% url 'public:empresa' %}">Empresa</a>
                         </nav>
                     </div>
 
@@ -171,12 +171,30 @@
 <script src="{% static 'core/js/core.min.js' %}"></script>
 <script src="{% static 'core/js/loader.js' %}"></script>
 <script>
+
     $(document).ready(function () {
+
+        window.configAjax = {
+                "oLanguage": {
+                    "sSearch": "Buscar",
+                    "sProcessing": "Procesando",
+                    "sLoadingRecords": "Cargando",
+                    "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "sLengthMenu": "Mostrar _MENU_ registros",
+                    "oPaginate": {
+                        "sFirst": "Primera",
+                        "sLast": "Última",
+                        "sNext": "Siguiente",
+                        "sPrevious": "Anterior"
+                    }
+                },
+            };
 
         $(".nav-link").click(function () {
         });
 
     });
+
 </script>
 
 {% block scripts %}

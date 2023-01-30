@@ -1,6 +1,7 @@
 Empresas
 - id
 - descripcion
+- logo
 - estado
 
 Categorias

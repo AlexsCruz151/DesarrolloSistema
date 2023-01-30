@@ -1,12 +1,14 @@
+import uuid
 from django.db import models
 from ..core.models import Base
 
-def empresa_upload_to(instance, filename):
-    return 'empresa/{}/{}'.format(instance.descripcion, filename)
+def empresa_upload_to(self, filename):
+    unique_id = uuid.uuid4()
+    return 'empresa/{}/{}'.format(unique_id, filename)
 
 class Empresa(Base):
     descripcion = models.CharField(verbose_name='Descripción', max_length=50, blank=False, null=False)
-    logo = models.ImageField(upload_to=empresa_upload_to)
+    logo = models.ImageField(upload_to='empresa')
     estado = models.IntegerField(default=1)
 
     class Meta:
