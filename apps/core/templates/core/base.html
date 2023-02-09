@@ -74,6 +74,8 @@
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-home"></i></div>
                         Inicio
                     </a>
+
+                    {# USUARIOS #}
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#usuarios"
                        aria-expanded="false" aria-controls="usuarios">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-user"></i></div>
@@ -89,11 +91,58 @@
                         </nav>
                     </div>
 
+                    {# CLIENTES #}
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#clientes"
+                       aria-expanded="false" aria-controls="clientes">
+                        <div class="sb-nav-link-icon icon_menu"><i class="fas fa-user"></i></div>
+                        Clientes
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="clientes" aria-labelledby="headingOne"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{% url 'usuarios:list' %}">Registro</a>
+                            <a class="nav-link" href="#">Compras</a>
+                            <a class="nav-link" href="#">Deudores</a>
+                        </nav>
+                    </div>
+
+                    {# VENTAS #}
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#ventas"
+                       aria-expanded="false" aria-controls="clientes">
+                        <div class="sb-nav-link-icon icon_menu"><i class="fa fa-exchange-alt"></i></div>
+                        Ventas
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="ventas" aria-labelledby="headingOne"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{% url 'usuarios:list' %}">Nueva Venta</a>
+                            <a class="nav-link" href="#">Registro</a>
+                            <a class="nav-link" href="#">Canceladas</a>
+                        </nav>
+                    </div>
+
                     {# BODEGA #}
                     <a class="nav-link" href="{% url 'core:home' %}">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-warehouse"></i></div>
-                        Bodega
+                        Bodegas
                     </a>
+
+                    {# MOMIVIENTOS #}
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#movimientos"
+                       aria-expanded="false" aria-controls="movimientos">
+                        <div class="sb-nav-link-icon icon_menu"><i class="fas fa-truck"></i></div>
+                        Movimientos
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="movimientos" aria-labelledby="headingOne"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{% url 'usuarios:list' %}">Entrada de productos</a>
+                            <a class="nav-link" href="#">Salida de productos</a>
+                        </nav>
+                    </div>
 
                     {# PRODUCTOS #}
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productos"

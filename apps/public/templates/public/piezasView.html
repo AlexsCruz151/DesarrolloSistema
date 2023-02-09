@@ -36,7 +36,9 @@
                     <thead>
                     <tr>
                         <th style="font-size: 15px">CÓDIGO</th>
+                        <th style="font-size: 15px">CÓDIGO REFERENCIA</th>
                         <th style="font-size: 15px">DESCRIPCIÓN</th>
+                        <th style="font-size: 15px">IMAGEN</th>
                         <th style="font-size: 15px">ESTADO</th>
                         <th style="font-size: 15px">ACCIONES</th>
                     </tr>
@@ -45,7 +47,13 @@
                     {% for p in piezas %}
                         <tr>
                             <td style="font-size:15px">{{ p.id }}</td>
+                            <td style="font-size:15px">{{ p.codigo }}</td>
                             <td style="font-size:15px">{{ p.descripcion }}</td>
+
+
+                            <td style="font-size:15px"><img style="height: 50px; width: 50px" src="{{ p.imagen.url }}"
+                                                            alt="title"/></td>
+
                             <td>
                                 {% if p.estado == 1 %}
                                     <span class="badge rounded-pill bg-success">Activo</span>
@@ -56,9 +64,13 @@
 
                             <td>
                                 <button data-toggle="tooltip" title="Editar usuario" type="button"
-                                        class="btn btn-success btnEdit" data-id="{{ p.id }}" data-descripcion="{{ p.descripcion }}"><i class="fas fa-pen"></i></button>
-                                <button data-toggle="tooltip" title="Eliminar usuario" type="button"
-                                        class="btn btn-danger btnDelete" data-id="{{ p.id }}"><i class="fas fa-trash"></i></button>
+                                        class="btn btn-success btnEdit" data-id="{{ p.id }}"
+                                        data-codigo="{{ p.codigo }}" data-imagen="{{ p.imagen }}"
+                                        data-descripcion="{{ p.descripcion }}"><i class="fas fa-pen"></i></button>
+                                <button onclick="deletePieza({{ e.id }})" data-toggle="tooltip" title="Eliminar usuario"
+                                        type="button"
+                                        class="btn btn-danger btnDelete" data-id="{{ p.id }}"><i
+                                        class="fas fa-trash"></i></button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -86,22 +98,15 @@
                                            aria-label="Codigo"
                                            aria-describedby="basic-addon1">
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col col-sm-9">
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i
-                                            class="fas fa-edit"></i></span>
-                                    <input maxlength="50" id="txtDescripcion" type="text" class="form-control"
-                                           placeholder="Descripción de la Pieza"
-                                           aria-label="correo"
+                                            class="fas fa-code"></i></span>
+                                    <input maxlength="20" id="txtCodigoReferencia" type="text" class="form-control"
+                                           placeholder="Código de Referencia"
+                                           aria-label="codigoreferencia"
                                            aria-describedby="basic-addon1">
-                                    <div class="invalid-feedback">Descripción no válida</div>
-
+                                    <div class="invalid-feedback">Código de Referencia</div>
                                 </div>
-                            </div>
-                            <div class="col col-sm-3">
                                 <div class="input-group mb-3">
                                     <div class="input-group-text">
                                         <input id="checkActivo" class="form-check-input mt-0" type="checkbox" value=""
@@ -111,9 +116,45 @@
                                     <input type="text" class="form-control" aria-label="Text input with checkbox"
                                            disabled="disabled" value="Activo">
                                 </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                    <input maxlength="50" id="txtDescripcion" type="text" class="form-control"
+                                           placeholder="Descripción de la Pieza"
+                                           aria-label="correo"
+                                           aria-describedby="basic-addon1">
+                                    <div class="invalid-feedback">Descripción no válida</div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-sort-amount-down"></i></span>
+                                    <input maxlength="8" id="txtCantidad" type="text" class="form-control"
+                                           placeholder="Cantidad de piezas"
+                                           aria-label="piezas"
+                                           aria-describedby="basic-addon1">
+                                    <div class="invalid-feedback">Cantidad</div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="" style="color: black; font-weight: bold">C$</i></span>
+                                    <input maxlength="8" id="txtPrecio" type="text" class="form-control"
+                                           placeholder="Precio de pieza"
+                                           aria-label="precio"
+                                           aria-describedby="basic-addon1">
+                                    <div class="invalid-feedback">Precio</div>
+                                </div>
+                            </div>
+                            <div class="col col-sm-6">
+                                <div class="form-group">
+                                    <img id="preview" src="#" alt="image preview"
+                                         style="background-color: deepskyblue;display: block; height: 250px; width:initial"
+                                         accept=".jpeg,.jpg,.png">
+                                    <input style="margin-top:10px;background-color: deepskyblue; padding: 5px; width: 100%"
+                                           type="file" id="imagen" name="file" onchange="loadImage()">
+                                    <div class="invalid-feedback">No ha seleccionado una imágen</div>
+                                </div>
                             </div>
                         </div>
-
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -138,10 +179,12 @@
 {% block scripts %}
     <script>
 
-    var gId = null;
+        var gId = null;
 
         {# INICIO DEL CÓDIGO EN JAVASCRIPT #}
         $(document).ready(function () {
+
+            validarInputs();
 
             $("#btnAddManoFactura").click(function () {
                 gId = null;
@@ -167,7 +210,7 @@
             });
 
             $("#btnSave").click(function () {
-                if(gId == null)
+                if (gId == null)
                     save();
                 else
                     update()
@@ -188,24 +231,53 @@
         function save() {
 
             let codigo = $("#txtCodigo").val().trim();
+            let codigoReferencia = $("#txtCodigoReferencia").val().trim();
             let descripcion = $("#txtDescripcion").val().trim();
-            let estadoActivo = false;
+            let cantidad = $("#txtCantidad").val().trim();
+            let precio = $("#txtPrecio").val().trim();
+            let estadoActivo = 0;
             let estadoSave = true
 
             if ($("#checkActivo").is(":checked"))
-                estadoActivo = true;
+                estadoActivo = 1;
 
-            if (descripcion == "")
+            if (descripcion === "")
                 $("#txtDescripcion").addClass("is-invalid");
 
-            if (descripcion == "")
+            if (descripcion === "")
                 estadoSave = false
 
+            if (codigoReferencia === "") {
+                estadoSave = false
+                $("#txtCodigoReferencia").addClass("is-invalid");
+            }
+
+            if (cantidad === "") {
+                estadoSave = false;
+                $("#txtCantidad").addClass("is-invalid");
+            }
+
+            if (precio === "") {
+                estadoSave = false;
+                $("#txtPrecio").addClass("is-invalid");
+            }
+
+            if (document.getElementById("imagen").files.length === 0) {
+                estadoSave = false;
+                $("#file").addClass("is-invalid");
+                return;
+            }
+
             if (estadoSave) {
-                let datos = {};
-                datos['csrfmiddlewaretoken'] = $("input[name='csrfmiddlewaretoken']").val();
-                datos['descripcion'] = descripcion;
-                datos['estadoActivo'] = estadoActivo;
+
+                let datos = new FormData();
+                datos.append('csrfmiddlewaretoken', $("input[name='csrfmiddlewaretoken']").val());
+                datos.append('descripcion', descripcion);
+                datos.append('codigoReferencia', codigoReferencia);
+                datos.append('estadoActivo', estadoActivo);
+                datos.append('cantidad', cantidad);
+                datos.append('precio', precio);
+                datos.append('file', document.getElementById("imagen").files[0]);
 
                 alertify.confirm('CONFIRMACIÓN', '¿Dsea guardar la Pieza?', function () {
                         $.ajax({
@@ -213,6 +285,10 @@
                             url: "{% url 'public:piezas'%} ",
                             data: datos,
                             dataType: 'json',
+                            cache: false,
+                            processData: false,  // importante
+                            contentType: false, // importante
+                            enctype: 'multipart/form-data',  // and here
                             success: function (respuesta) {
                                 if (respuesta.error) {
                                     if (respuesta.option == "1") {
@@ -240,7 +316,7 @@
                                         timer: 10000
                                     });
                                     showLoad(false);
-                                    window.reload();
+                                    location.reload();
                                 }
                             },
                             error: function (error) {
@@ -332,6 +408,115 @@
                     }).set('labels', {ok: 'Aceptar', cancel: 'Cancelar'},);
             }
 
+
+        }
+
+        // ELIMINAR UNA EMPRESA
+        function deletePieza(id) {
+
+            let datos = new FormData();
+            datos.append('csrfmiddlewaretoken', $("input[name='csrfmiddlewaretoken']").val());
+            datos.append('crud', 3);
+            datos.append('id', id);
+
+            alertify.confirm('CONFIRMACIÓN', '¿Desea eliminar la empresa?', function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{% url 'public:updatePieza'%} ",
+                        data: datos,
+                        dataType: 'json',
+                        cache: false,
+                        processData: false,  // importante
+                        contentType: false, // importante
+                        enctype: 'multipart/form-data',  // and here
+                        success: function (respuesta) {
+
+                            if (respuesta.error) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: respuesta.mensaje,
+                                    timer: 5000
+                                });
+
+                            } else {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: respuesta.mensaje,
+                                    timer: 10000
+                                });
+
+                                showLoad(false);
+                                window.reload();
+                            }
+                        },
+                        error: function (error) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'Error de administración',
+                                timer: 10000
+                            });
+                        },
+                    });
+                }
+                , function () {
+                }).set('labels', {ok: 'Aceptar', cancel: 'Cancelar'},);
+        }
+
+        // CARGAR IMAGEN Y PREVISUALIZAR
+        function loadImage() {
+
+            let preview = document.getElementById('preview');
+            let file = document.getElementById('imagen').files[0];
+            let reader = new FileReader();
+            let fileType = file.type;
+
+            if (!(fileType === "image/jpeg" || fileType === "image/png")) {
+                $("#imagen").val("");
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Seleccione una imagen jpeg o png',
+                    timer: 10000
+                });
+            } else {
+
+                reader.onloadend = function () {
+                    preview.src = reader.result;
+                    preview.style.display = 'block';
+                }
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.src = "";
+                }
+            }
+        }
+
+        // VALIDA INPUTS
+        function validarInputs() {
+
+            // Solamente letra
+            $("#txtDescripcion").on("input", function () {
+                var value = $(this).val().replace(/[^a-zA-Z]+/g, '');
+                $(this).val(value);
+            });
+
+            // Solamente numeros con decimales
+            $("#txtPrecio").on("input", function () {
+                var value = $(this).val().replace(/^\d+(?:\.\d{1,2})?$/g, '');
+                $(this).val(value);
+            });
+
+            // Solamente numero
+            $("#txtCantidad").on("input", function () {
+                var value = $(this).val().replace(/^\d+$/g, '');
+                $(this).val(value);
+            });
+
+            $("#txtCodigoReferencia").on("input", function () {
+                var value = $(this).val().replace(/^[a-zA-Z0-9]+$/g, '');
+                $(this).val(value);
+            });
 
         }
 

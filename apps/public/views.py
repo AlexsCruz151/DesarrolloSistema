@@ -14,6 +14,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
 import json
+import decimal
 
 
 class CategoriaView(LoginRequiredMixin, TemplateView):
@@ -92,18 +93,29 @@ class PiezasView(LoginRequiredMixin, TemplateView):
         try:
             with transaction.atomic():
                 descripcion = str(request.POST.get('descripcion'))
+                codigoReferencia = str(request.POST.get('codigoReferencia'))
+                cantidad = request.POST.get('cantidad')
+                precio = request.POST.get('precio')
+
+                if cantidad:
+                    cantidad = int(cantidad)
+
+                if precio:
+                    precio = decimal.Decimal(precio)
 
                 try:
-                    Piezas.objects.get(descripcion=descripcion)
-                    optionError = 1
+                    Piezas.objects.get(Q(descripcion=descripcion) | Q(codigo=codigoReferencia),estado__in=[0,1])
+                    opcionError = 1
                     error = True
                     mensaje = 'Ya existe la pieza: ' + descripcion
                 except ObjectDoesNotExist:
                     optionError = 0
 
                 if optionError == 0:
-                    estadoActivo = bool(request.POST.get('estadoActivo'))
-                    piezas = Piezas(descripcion=descripcion, estado=estadoActivo)
+                    estadoActivo = int(request.POST.get('estadoActivo'))
+                    piezas = Piezas(codigo=codigoReferencia, descripcion=descripcion, estado=estadoActivo, cantidad=cantidad, precio=precio)
+                    imagen = request.FILES['file']
+                    piezas.imagen = imagen
                     piezas.save()
                     mensaje = 'Pieza guardada correctamente'
 
@@ -111,7 +123,7 @@ class PiezasView(LoginRequiredMixin, TemplateView):
             error = True
             mensaje = str(e)
 
-        return JsonResponse({'error': error, 'mensaje': mensaje, 'option': optionError})
+        return JsonResponse({'error': error, 'mensaje': mensaje, 'option': opcionError})
 
 def UpdatePieza(request, *args, **kwargs):
     error = False
