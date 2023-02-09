@@ -15,6 +15,7 @@ from django.core.files.storage import default_storage
 from django.http import JsonResponse
 import json
 import decimal
+#g
 
 
 class CategoriaView(LoginRequiredMixin, TemplateView):
