@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CategoriaView, UpdateCategoria,PiezasView, UpdatePieza, ProductoPiezasView, EmpresasView, UpdateEmpresa
+from .views import *
 
 app_name = 'public'
 urlpatterns = [
@@ -9,5 +9,7 @@ urlpatterns = [
     path('updatepiezas/', UpdatePieza, name='updatePieza'),
     path('productopiezas/',ProductoPiezasView.as_view() , name='productopiezas'),
     path('empresa/',EmpresasView.as_view() , name='empresa'),
-    path('actualizarempresa/',UpdateEmpresa , name='updateEmpresa')
+    path('actualizarempresa/',UpdateEmpresa , name='updateEmpresa'),
+    path('bodega/',BodegasView.as_view() , name='bodega'),
+    path('updatebodega/',UpdateBodega , name='updateBodega'),
 ]

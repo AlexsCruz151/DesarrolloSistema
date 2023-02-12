@@ -126,22 +126,8 @@
                                     <div class="invalid-feedback">Descripción no válida</div>
                                 </div>
                                 <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i
-                                            class="fas fa-sort-amount-down"></i></span>
-                                    <input maxlength="8" id="txtCantidad" type="text" class="form-control"
-                                           placeholder="Cantidad de piezas"
-                                           aria-label="piezas"
-                                           aria-describedby="basic-addon1">
-                                    <div class="invalid-feedback">Cantidad</div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i
-                                            class="" style="color: black; font-weight: bold">C$</i></span>
-                                    <input maxlength="8" id="txtPrecio" type="text" class="form-control"
-                                           placeholder="Precio de pieza"
-                                           aria-label="precio"
-                                           aria-describedby="basic-addon1">
-                                    <div class="invalid-feedback">Precio</div>
+
+
                                 </div>
                             </div>
                             <div class="col col-sm-6">
@@ -233,8 +219,6 @@
             let codigo = $("#txtCodigo").val().trim();
             let codigoReferencia = $("#txtCodigoReferencia").val().trim();
             let descripcion = $("#txtDescripcion").val().trim();
-            let cantidad = $("#txtCantidad").val().trim();
-            let precio = $("#txtPrecio").val().trim();
             let estadoActivo = 0;
             let estadoSave = true
 
@@ -252,16 +236,6 @@
                 $("#txtCodigoReferencia").addClass("is-invalid");
             }
 
-            if (cantidad === "") {
-                estadoSave = false;
-                $("#txtCantidad").addClass("is-invalid");
-            }
-
-            if (precio === "") {
-                estadoSave = false;
-                $("#txtPrecio").addClass("is-invalid");
-            }
-
             if (document.getElementById("imagen").files.length === 0) {
                 estadoSave = false;
                 $("#file").addClass("is-invalid");
@@ -275,8 +249,6 @@
                 datos.append('descripcion', descripcion);
                 datos.append('codigoReferencia', codigoReferencia);
                 datos.append('estadoActivo', estadoActivo);
-                datos.append('cantidad', cantidad);
-                datos.append('precio', precio);
                 datos.append('file', document.getElementById("imagen").files[0]);
 
                 alertify.confirm('CONFIRMACIÓN', '¿Dsea guardar la Pieza?', function () {
@@ -501,21 +473,12 @@
                 $(this).val(value);
             });
 
-            // Solamente numeros con decimales
-            $("#txtPrecio").on("input", function () {
-                var value = $(this).val().replace(/^\d+(?:\.\d{1,2})?$/g, '');
-                $(this).val(value);
-            });
-
             // Solamente numero
-            $("#txtCantidad").on("input", function () {
-                var value = $(this).val().replace(/^\d+$/g, '');
-                $(this).val(value);
-            });
-
             $("#txtCodigoReferencia").on("input", function () {
-                var value = $(this).val().replace(/^[a-zA-Z0-9]+$/g, '');
-                $(this).val(value);
+                var value = $(this).val();
+                if (!/^\d+$/.test(value)) {
+                    $(this).val(value.replace(/[^\d]+/g, ''));
+                }
             });
 
         }

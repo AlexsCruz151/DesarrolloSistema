@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
-from ..public.models import Categoria, Piezas, Empresa
+from ..public.models import Categoria, Piezas, Empresa, Bodega
 from django.db import transaction, connection
 from django.http import HttpResponseNotFound, JsonResponse
 from django.core.files.base import ContentFile
@@ -95,14 +95,7 @@ class PiezasView(LoginRequiredMixin, TemplateView):
             with transaction.atomic():
                 descripcion = str(request.POST.get('descripcion'))
                 codigoReferencia = str(request.POST.get('codigoReferencia'))
-                cantidad = request.POST.get('cantidad')
-                precio = request.POST.get('precio')
 
-                if cantidad:
-                    cantidad = int(cantidad)
-
-                if precio:
-                    precio = decimal.Decimal(precio)
 
                 try:
                     Piezas.objects.get(Q(descripcion=descripcion) | Q(codigo=codigoReferencia),estado__in=[0,1])
@@ -114,7 +107,7 @@ class PiezasView(LoginRequiredMixin, TemplateView):
 
                 if optionError == 0:
                     estadoActivo = int(request.POST.get('estadoActivo'))
-                    piezas = Piezas(codigo=codigoReferencia, descripcion=descripcion, estado=estadoActivo, cantidad=cantidad, precio=precio)
+                    piezas = Piezas(codigo=codigoReferencia, descripcion=descripcion, estado=estadoActivo)
                     imagen = request.FILES['file']
                     piezas.imagen = imagen
                     piezas.save()
@@ -138,7 +131,6 @@ def UpdatePieza(request, *args, **kwargs):
             piezas.descripcion = str(request.POST.get("descripcion"))
             piezas.estado = bool(request.POST.get("estadoActivo"))
             piezas.save()
-
             mensaje = 'Pieza Actualizada'
 
     except Exception as e:
@@ -296,6 +288,97 @@ def UpdateEmpresa(request, *args, **kwargs):
                 empresa.estado = -1
                 empresa.save()
                 mensaje = 'Empresa Eliminada'
+        except Exception as e:
+            error = True
+            mensaje = str(e)
+
+        return JsonResponse({'error': error, 'mensaje': mensaje})
+
+
+# *** BODEGAS ***#
+
+class BodegasView(LoginRequiredMixin, TemplateView):
+    template_name = 'public/bodegasView.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['bodegas'] = Bodega.objects.filter(Q(estado=1) | Q(estado=0))
+        return context
+
+    def post(self, request, *args, **kwargs):
+        error = False
+        mensaje = ''
+        optionError = 0  # 1: Existe empresa
+
+        try:
+            with transaction.atomic():
+                nombre = str(request.POST.get('nombre')).upper()
+
+                try:
+                    Bodega.objects.get(nombre=nombre, estado__in=[0, 1])
+                    optionError = 1
+                    error = True
+                    mensaje = 'Ya existe la bodega: ' + nombre
+                except ObjectDoesNotExist:
+                    optionError = 0
+
+                if optionError == 0:
+                    estadoActivo = int(request.POST.get('estadoActivo'))
+                    descripcion = str(request.POST.get('descripcion')).upper()
+                    bodega = Bodega(nombre=nombre,descripcion=descripcion,estado=estadoActivo)
+                    bodega.save()
+                    mensaje = 'Bodega guardada correctamente'
+
+        except Exception as e:
+            error = True
+            mensaje = str(e)
+
+        return JsonResponse({'error': error, 'mensaje': mensaje, 'option': optionError})
+
+
+def UpdateBodega(request, *args, **kwargs):
+    error = False
+    mensaje = ''
+    optionError = 0
+
+    crud = int(request.POST.get('crud'))
+    id = int(request.POST.get('id'))
+    bodega = Bodega.objects.get(id=id)
+
+    # ACTUALIZA Bodega
+    if crud == 2:
+        try:
+            with transaction.atomic():
+
+                nombre = str(request.POST.get("nombre")).upper()  # Leemos la descripción
+
+                try:
+                    Bodega.objects.exclude(id=id).get(nombre=nombre)
+                    optionError = 1
+                    error = True
+                    mensaje = 'Ya existe la bodega: ' + nombre
+                except ObjectDoesNotExist:
+                    optionError = 0
+
+                if optionError == 0:
+                    bodega.nombre = str(request.POST.get("nombre")).upper()
+                    bodega.descripcion = str(request.POST.get("descripcion")).upper()
+                    bodega.estado = int(request.POST.get("estadoActivo"))
+                    bodega.save()
+
+                mensaje = 'Bodega Actualizada'
+        except Exception as e:
+            error = True
+            mensaje = str(e)
+        return JsonResponse({'error': error, 'mensaje': mensaje, 'option': optionError})
+
+    # ELIMINA UNA EMPRESA
+    if crud == 3:
+        try:
+            with transaction.atomic():
+                bodega.estado = -1
+                bodega.save()
+                mensaje = 'Bodega Eliminada'
         except Exception as e:
             error = True
             mensaje = str(e)
