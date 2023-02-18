@@ -123,18 +123,27 @@
                         </nav>
                     </div>
 
-                    {# BODEGA #}
-                    <a class="nav-link" href="{% url 'public:bodega' %}">
+                    {# INGRESOS #}
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#bodega"
+                       aria-expanded="false" aria-controls="movimientos">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-warehouse"></i></div>
-                        Bodegas
+                        Ingresos
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
+                    <div class="collapse" id="bodega" aria-labelledby="headingOne"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{% url 'public:entradaPiezas' %}">Piezas</a>
+                            <a class="nav-link" href="{% url 'public:bodega' %}">Productos</a>
+                        </nav>
+                    </div>
 
 
-                    {# MOMIVIENTOS #}
+                    {# TRASLADOS #}
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#movimientos"
                        aria-expanded="false" aria-controls="movimientos">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-truck"></i></div>
-                        Movimientos
+                        Traslado
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="movimientos" aria-labelledby="headingOne"
@@ -149,15 +158,17 @@
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productos"
                        aria-expanded="false" aria-controls="productos">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-store"></i></div>
-                        Productos
+                        Catálogos
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="productos" aria-labelledby="headingOne"
                          data-bs-parent="#sidenavAccordion">
                         <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{% url 'public:bodega' %}">Bodegas</a>
                             <a class="nav-link" href="{% url 'public:categoria' %}">Categorías</a>
                             <a class="nav-link" href="{% url 'public:piezas' %}">Piezas</a>
-                            <a class="nav-link" href="{% url 'public:productopiezas' %}">Mano Factura</a>
+                            <a class="nav-link" href="{% url 'public:piezas' %}">Productos</a>
+                            <a class="nav-link" href="{% url 'public:empresa' %}">Empresas</a>
                         </nav>
                     </div>
 
@@ -225,20 +236,20 @@
     $(document).ready(function () {
 
         window.configAjax = {
-                "oLanguage": {
-                    "sSearch": "Buscar",
-                    "sProcessing": "Procesando",
-                    "sLoadingRecords": "Cargando",
-                    "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-                    "sLengthMenu": "Mostrar _MENU_ registros",
-                    "oPaginate": {
-                        "sFirst": "Primera",
-                        "sLast": "Última",
-                        "sNext": "Siguiente",
-                        "sPrevious": "Anterior"
-                    }
-                },
-            };
+            "oLanguage": {
+                "sSearch": "Buscar",
+                "sProcessing": "Procesando",
+                "sLoadingRecords": "Cargando",
+                "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                "sLengthMenu": "Mostrar _MENU_ registros",
+                "oPaginate": {
+                    "sFirst": "Primera",
+                    "sLast": "Última",
+                    "sNext": "Siguiente",
+                    "sPrevious": "Anterior"
+                }
+            },
+        };
 
         $(".nav-link").click(function () {
         });

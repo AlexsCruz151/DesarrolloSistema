@@ -113,7 +113,8 @@
                                                checked
                                                aria-label="Checkbox for following text input">
                                     </div>
-                                    <input type="text" class="form-control" aria-label="Text input with checkbox"
+                                    <input placeholder="Estado" type="text" class="form-control"
+                                           aria-label="Text input with checkbox"
                                            disabled="disabled" value="Activo">
                                 </div>
                                 <div class="input-group mb-3">
@@ -125,9 +126,26 @@
                                            aria-describedby="basic-addon1">
                                     <div class="invalid-feedback">Descripción no válida</div>
                                 </div>
-                                <div class="input-group mb-3">
-
-
+                                <div class="input-group mb-3" id="contenedorCantidad">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                    <input maxlength="50" id="txtCantidad" type="text" class="form-control"
+                                           placeholder="Cantidad de piezas"
+                                           aria-label="piezas"
+                                           aria-describedby="basic-addon1">
+                                </div>
+                                <div class="input-group mb-3" id="contenedorTablaPrecios">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Cantidad</th>
+                                            <th>Precio</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tblDetallePrecios">
+                                        <!-- Aquí irán las filas que se agreguen dinámicamente con JavaScript -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                             <div class="col col-sm-6">
@@ -171,9 +189,12 @@
         $(document).ready(function () {
 
             validarInputs();
+            estadoContenedorPrecios(0);
 
             $("#btnAddManoFactura").click(function () {
                 gId = null;
+                emptyInputs(); // Vaciamos valores ingresados en inputs
+                estadoContenedorPrecios(0); // Mostramos detalle de precios
                 $("#mdlPieza").modal("show");
             });
 
@@ -203,15 +224,77 @@
             });
 
             $(".btnEdit").click(function () {
+                estadoContenedorPrecios(1); // Mostramos detalle de precios
                 let id = $(this).data('id');
                 gId = id;
                 let descripcion = $(this).data('descripcion');
+                let codigoReferencia = $(this).data('codigo');
                 $("#txtCodigo").val(id);
+                $("#txtCodigoReferencia").val(codigoReferencia);
                 $("#txtDescripcion").val(descripcion);
+                let imagen = $(this).data('imagen');
+                $("#preview").attr("src", "/media/" + imagen);
                 $("#mdlPieza").modal("show");
+
+                getDetallePrecios(); // Muestra los detalles de los precios
             });
 
         });
+
+        // LEE LOS DETALLES DE LOS PRECIOS
+        function getDetallePrecios() {
+
+            $('#tblDetallePrecios').empty();
+
+            let datos = new FormData();
+            datos.append('csrfmiddlewaretoken', $("input[name='csrfmiddlewaretoken']").val());
+            datos.append('get', 1); // Leer detalle de precios
+            datos.append('id', gId); // Id de la pieza
+
+
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'public:getPieza'%} ",
+                data: datos,
+                dataType: 'json',
+                cache: false,
+                processData: false,  // importante
+                contentType: false, // importante
+                enctype: 'multipart/form-data',  // and here
+                success: function (data) {
+
+                    if (data.length === 0) {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Esta pieza no posee entradas',
+                            timer: 10000
+                        });
+
+                         var tr = $('<tr>');
+                         tr.append('<td><div class="alert alert-danger" role="alert"> No hay entradas para esta pieza </div></td>');
+                         $('#tblDetallePrecios').append(tr);
+
+                    } else {
+                        $.each(data, function (index, element) {
+                            var tr = $('<tr>');
+                            tr.append($('<td>').text(element.cantidad));
+                            tr.append($('<td>').text(element.precio));
+                            $('#tblDetallePrecios').append(tr);
+                        });
+                    }
+
+                    console.log(data.length);
+                    {#location.reload();#}
+                },
+                error: function (error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error de administraciónn',
+                        timer: 10000
+                    });
+                },
+            });
+        }
 
         // GUARDAR USUARIO
         function save() {
@@ -481,6 +564,26 @@
                 }
             });
 
+        }
+
+        // LIMPIAR FORMURARIOS
+        function emptyInputs() {
+
+            let inputs = document.getElementsByTagName("input");
+
+            for (var i = 0; i < inputs.length; i++) {
+                if (inputs[i].type === "text" || inputs[i].type === "file") {
+                    inputs[i].value = "";
+                }
+            }
+            $("#preview").attr('src', '');
+
+        }
+
+        // ESTADO CONTENEDOR PRECIOS
+        function estadoContenedorPrecios(accion) {
+            const method = accion === 0 ? 'hide' : 'show';
+            $("#contenedorCantidad, #contenedorTablaPrecios")[method]();
         }
 
     </script>

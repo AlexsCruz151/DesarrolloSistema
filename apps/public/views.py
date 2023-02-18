@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
-from ..public.models import Categoria, Piezas, Empresa, Bodega
+from ..public.models import Categoria, Piezas, Empresa, Bodega, PiezasPrecio
 from django.db import transaction, connection
 from django.http import HttpResponseNotFound, JsonResponse
 from django.core.files.base import ContentFile
@@ -77,6 +77,7 @@ def UpdateCategoria(request, *args, **kwargs):
 
     return JsonResponse({'error': error, 'mensaje': mensaje})
 
+#*** PIEZAS ***#
 
 class PiezasView(LoginRequiredMixin, TemplateView):
     template_name = 'public/piezasView.html'
@@ -139,6 +140,14 @@ def UpdatePieza(request, *args, **kwargs):
 
     return JsonResponse({'error': error, 'mensaje': mensaje})
 
+def GetPieza(request, *args, **kwargs):
+
+    get = int(request.POST.get('get'))
+
+    if get == 1: # Extraer detalle de precios
+        detalle_precios = PiezasPrecio.objects.filter(pieza__id=1)
+        return JsonResponse(list(detalle_precios),safe=False)
+
 class ProductoPiezasView(LoginRequiredMixin, TemplateView):
     template_name = 'public/productoPiezasView.html'
 
@@ -175,7 +184,6 @@ class ProductoPiezasView(LoginRequiredMixin, TemplateView):
             mensaje = str(e)
 
         return JsonResponse({'error': error, 'mensaje': mensaje, 'option': optionError})
-
 
 def UpdateProductoPiezas(request, *args, **kwargs):
     error = False
@@ -335,7 +343,6 @@ class BodegasView(LoginRequiredMixin, TemplateView):
 
         return JsonResponse({'error': error, 'mensaje': mensaje, 'option': optionError})
 
-
 def UpdateBodega(request, *args, **kwargs):
     error = False
     mensaje = ''
@@ -384,3 +391,44 @@ def UpdateBodega(request, *args, **kwargs):
             mensaje = str(e)
 
         return JsonResponse({'error': error, 'mensaje': mensaje})
+
+
+# *** ENTRADAS DE PIEZAS *** #
+
+class EntradaPiezasView(LoginRequiredMixin, TemplateView):
+    template_name = 'public/entradaPiezas.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['bodegas'] = Bodega.objects.filter(estado=1)
+        context['piezasPrecios'] = PiezasPrecio.objects.select_related('pieza')
+        return context
+
+    def post(self, request, *args, **kwargs):
+        error = False
+        mensaje = ''
+        opcionError = 0  # 1: Existe usuario
+
+        try:
+            with transaction.atomic():
+                descripcion = str(request.POST.get('descripcion'))
+
+                try:
+                    Piezas.objects.get(descripcion=descripcion)
+                    optionError = 1
+                    error = True
+                    mensaje = 'Ya existe la pieza: ' + descripcion
+                except ObjectDoesNotExist:
+                    optionError = 0
+
+                if optionError == 0:
+                    estadoActivo = bool(request.POST.get('estadoActivo'))
+                    piezas = Piezas(descripcion=descripcion, estado=estadoActivo)
+                    piezas.save()
+                    mensaje = 'Pieza guardada correctamente'
+
+        except Exception as e:
+            error = True
+            mensaje = str(e)
+
+        return JsonResponse({'error': error, 'mensaje': mensaje, 'option': optionError})

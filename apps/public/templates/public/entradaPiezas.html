@@ -1,0 +1,160 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block styles %}
+{% endblock %}
+{% block content %}
+
+    {% csrf_token %}
+
+    {# VISTA DE ENTRADA DE PIEZAS #}
+    <div class="container">
+
+        {# MENU #}
+        <nav class="navbar navbar-light bg-white" style="margin-top:10px;  border-left: 3px solid #0d6efd">
+            <div class="container">
+                <h5 class="float-left" style="color:#0d6efd">Entrada de Piezas </h5>
+                <div class="float-left">
+                    <button id="btnAddPieza" type="button" class="btn btn-primary">
+                        <i class="fas fa-plus-square"> </i> Ingresar piezas
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        {# REGISTROS #}
+        <div class="card my-3">
+            <div class="card-header d-flex justify-content-between" style="background-color: #17627e30 !important">
+                <div class="titulos" style="color:black !important; font-size: 22px">
+                    Registro
+                </div>
+
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover" id="tblBodegas">
+                    <thead>
+                    <tr>
+                        <th style="font-size: 15px">CÓDIGO</th>
+                        <th style="font-size: 15px">NOMBRE</th>
+                        <th style="font-size: 15px">DESCRIPCIÓN</th>
+                        <th style="font-size: 15px">ESTADO</th>
+                        <th style="font-size: 15px">ACCIONES</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for b in bodegas %}
+                        <tr>
+                            <td style="font-size:15px">{{ b.id }}</td>
+                            <td style="font-size:15px">{{ b.nombre }}</td>
+                            <td style="font-size:15px">{{ b.descripcion }}</td>
+                            <td>
+                                {% if b.estado == 1 %}
+                                    <span class="badge rounded-pill bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge rounded-pill bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <button data-toggle="tooltip" title="Editar empresa" type="button"
+                                        class="btn btn-success btnEdit" data-id="{{ b.id }}"
+                                        data-nombre ="{{ b.nombre }}" data-descripcion="{{ b.descripcion }}" data-estado="{{ b.estado }}"><i class="fas fa-pen"></i></button>
+                                <button data-toggle="tooltip" title="Eliminar empresa" type="button"
+                                        class="btn btn-danger btnDelete" onclick="deleteBodega({{ b.id }})" data-id="{{ b.id }}"><i
+                                        class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# MODAL DE EMPRESA #}
+    <div class="modal fade" id="mdlBodega" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #d3e1e7">
+                    <h5 class="modal-title" id="exampleModalLabel">AÑADIR BODEGA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form enctype="multipart/form-data">
+
+                        <div class="row">
+                            <div class="col col-sm-12">
+                                <div class="row">
+                                    <div class="col col-sm-4">
+                                        <label>Código:</label>
+                                        <div class="input-group mb-3">
+                                        <span class="input-group-text" id="basic-addon1"><i
+                                                class="fas fa-fingerprint"></i></span>
+                                            <input disabled id="txtCodigo" type="text" class="form-control"
+                                                   placeholder="Código"
+                                                   aria-label="Codigo"
+                                                   aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <div class="col col-sm-4">
+                                        <label>Nombre:</label>
+                                        <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                            <input maxlength="50" id="txtNombre" type="text" class="form-control"
+                                                   placeholder="Nombre de bodega"
+                                                   aria-label="correo"
+                                                   aria-describedby="basic-addon1">
+                                            <div class="invalid-feedback">Nombre no válido</div>
+                                        </div>
+                                    </div>
+                                    <div class="col col-sm-4">
+                                        <label>Estado:</label>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-text">
+                                                <input id="checkActivo" class="form-check-input mt-0" type="checkbox"
+                                                       value=""
+                                                       checked
+                                                       aria-label="Checkbox for following text input">
+                                            </div>
+                                            <input type="text" class="form-control"
+                                                   aria-label="Text input with checkbox" placeholder="Activo"
+                                                   disabled="disabled" value="Activo">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col col-sm-12">
+                                        <label>Descripción:</label>
+                                        <div class="input-group mb-3">
+                                        <span class="input-group-text" id="basic-addon1"><i
+                                                class="fas fa-edit"></i></span>
+                                            <textarea id="txtDescripcion" type="text" class="form-control"
+                                                   placeholder="Descripción"
+                                                   aria-label="Descripcion"
+                                                   aria-describedby="basic-addon1"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button id="btnSave" type="button" class="btn btn-success"><i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block modals %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'public/functionEntradaPiezas.js' %}"></script>
+{% endblock %}

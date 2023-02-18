@@ -18,7 +18,8 @@ class Base(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
-        user = get_current_user()
+        #user = get_current_user()
+        user = getattr(self, 'usuario_grabacion', None) or getattr(self, 'usuario_modificacion', None) or getattr(self,'user',None)
         if user and not user.pk:
             user = None
         if not self.pk:
