@@ -473,3 +473,22 @@ class EntradaPiezasView(LoginRequiredMixin, TemplateView):
             mensaje = str(e)
 
         return JsonResponse({'error': error, 'mensaje': mensaje})
+
+
+def GetDetalleEntrada(request, *args, **kwargs):
+
+    id_entrada = int(request.POST.get('id_entrada'))
+
+    detalle_piezas = DetalleEntradaPiezas.objects.select_related('pieza_precio__pieza','pieza_precio__bodega').filter(entrada_pieza_id=id_entrada)
+    data = []
+
+    for detalle in detalle_piezas:
+        data.append({
+            'piezas_id': detalle.pieza_precio.pieza.id,
+            'nombre_pieza': detalle.pieza_precio.pieza.descripcion,
+            'cantidad': detalle.cantidad,
+            'precio': detalle.pieza_precio.precio,
+            'nombre_bodega': detalle.pieza_precio.bodega.nombre
+        })
+
+    return JsonResponse(list(data),safe=False)

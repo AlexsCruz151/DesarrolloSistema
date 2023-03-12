@@ -75,12 +75,12 @@ $(document).ready(function () {
         let precio = $("#cantidadTxtPrecio").val().trim();
         let estadoSave = true;
 
-        if (cantidad === "" || cantidad==="0") {
+        if (cantidad === "" || cantidad === "0") {
             $("#cantidadTxtCantidad").addClass("is-invalid");
             estadoSave = false;
         }
 
-        if (precio === "" || precio==="0" || precio==="0.0" || precio==="0.00") {
+        if (precio === "" || precio === "0" || precio === "0.0" || precio === "0.00") {
             $("#cantidadTxtPrecio").addClass("is-invalid");
             estadoSave = false;
         }
@@ -140,14 +140,68 @@ $(document).ready(function () {
     // Mostrar detalle de la entrada
     $(".btnDetalle").click(function () {
         let id = $(this).data('id');
-        let descripcionBodega = $(this).data('descripcionbodega');
         let descripcion = $(this).data('descripcion');
-        console.log(estado);
+        let totalCantidad = 0;
 
         $("#txtDetalleCodigo").val(id);
-        $("#txtDetalleBodega").val(descripcionBodega);
-        $("#checkDetalleActivo").val(estado);
+        $("#txtDetalleDescripcion").val(descripcion);
         $("#mdlDetalleEntrada").modal("show");
+        $("#tblDetalleEntradas tbody").empty();
+
+        let datos = new FormData();
+        datos.append('csrfmiddlewaretoken', $("input[name='csrfmiddlewaretoken']").val());
+        datos.append('id_entrada', id);
+
+        $.ajax({
+            type: 'POST',
+            url: "/getdetalleentrada/",
+            data: datos,
+            dataType: 'json',
+            cache: false,
+            processData: false,  // importante
+            contentType: false, // importante
+            enctype: 'multipart/form-data',  // and here
+            success: function (datos) {
+
+                if (datos.length === 0) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Entrada sin detalle',
+                        timer: 5000
+                    });
+                } else {
+
+                    $.each(datos, function (index, detalle) {
+
+                        if(index === 0)
+                            $("#txtDetalleBodega").val(detalle.nombre_bodega);
+
+                        var row = $('<tr>');
+                        row.append($('<td>').text(detalle.piezas_id));
+                        row.append($('<td>').text(detalle.nombre_pieza));
+                        row.append($('<td>').text(detalle.cantidad));
+                        row.append($('<td>').text("C$ "+detalle.precio));
+                        $('#tblDetalleEntradas tbody').append(row);
+
+                        totalCantidad += detalle.cantidad;
+                    });
+
+                    $("#txtDetalleTotalCantidad").val(parseFloat(totalCantidad));
+
+                }
+
+
+                //window.reload();
+            },
+            error: function (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error de administración',
+                    timer: 10000
+                });
+            },
+        });
+
     });
 
 
@@ -228,8 +282,7 @@ function save() {
         $("#txtDescripcion").addClass("is-invalid");
     }
 
-    if(id_bodega === "0")
-    {
+    if (id_bodega === "0") {
         estadoSave = false;
         Toast.fire({
             icon: 'error',

@@ -14,4 +14,5 @@ urlpatterns = [
     path('bodega/', BodegasView.as_view(), name='bodega'),
     path('updatebodega/', UpdateBodega, name='updateBodega'),
     path('entradapiezas/', EntradaPiezasView.as_view(), name='entradaPiezas'),
+    path('getdetalleentrada/', GetDetalleEntrada, name='detalleEntrada'),
 ]
