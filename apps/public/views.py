@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
-from ..public.models import Categoria, Piezas, Empresa, Bodega, PiezasPrecio
+from ..public.models import Categoria, Piezas, Empresa, Bodega, PiezasPrecio, EntradaPiezas, DetalleEntradaPiezas
 from django.db import transaction, connection
 from django.http import HttpResponseNotFound, JsonResponse
 from django.core.files.base import ContentFile
@@ -15,8 +15,10 @@ from django.core.files.storage import default_storage
 from django.http import JsonResponse
 import json
 import decimal
+from django.db.models import F
 #g
 
+#*** CATEGORÍA ***#
 
 class CategoriaView(LoginRequiredMixin, TemplateView):
     template_name = 'public/categoriaView.html'
@@ -55,7 +57,6 @@ class CategoriaView(LoginRequiredMixin, TemplateView):
 
         return JsonResponse({'error': error, 'mensaje': mensaje, 'option': optionError})
 
-
 def UpdateCategoria(request, *args, **kwargs):
     error = False
     mensaje = ''
@@ -77,6 +78,12 @@ def UpdateCategoria(request, *args, **kwargs):
 
     return JsonResponse({'error': error, 'mensaje': mensaje})
 
+#*** FIN DE CATEGORÍA ***#
+
+
+
+
+
 #*** PIEZAS ***#
 
 class PiezasView(LoginRequiredMixin, TemplateView):
@@ -96,7 +103,7 @@ class PiezasView(LoginRequiredMixin, TemplateView):
             with transaction.atomic():
                 descripcion = str(request.POST.get('descripcion'))
                 codigoReferencia = str(request.POST.get('codigoReferencia'))
-
+                id_usuario = request.user.id
 
                 try:
                     Piezas.objects.get(Q(descripcion=descripcion) | Q(codigo=codigoReferencia),estado__in=[0,1])
@@ -108,7 +115,7 @@ class PiezasView(LoginRequiredMixin, TemplateView):
 
                 if optionError == 0:
                     estadoActivo = int(request.POST.get('estadoActivo'))
-                    piezas = Piezas(codigo=codigoReferencia, descripcion=descripcion, estado=estadoActivo)
+                    piezas = Piezas(codigo=codigoReferencia, descripcion=descripcion, estado=estadoActivo,usuario_grabacion_id=id_usuario)
                     imagen = request.FILES['file']
                     piezas.imagen = imagen
                     piezas.save()
@@ -126,11 +133,13 @@ def UpdatePieza(request, *args, **kwargs):
 
     id = str(request.POST.get('id'))
     piezas = Piezas.objects.get(id=id)
+    id_usuario = request.user.id
 
     try:
         with transaction.atomic():
             piezas.descripcion = str(request.POST.get("descripcion"))
             piezas.estado = bool(request.POST.get("estadoActivo"))
+            piezas.usuario_modificacion_id = id_usuario
             piezas.save()
             mensaje = 'Pieza Actualizada'
 
@@ -205,6 +214,9 @@ def UpdateProductoPiezas(request, *args, **kwargs):
         mensaje = str(e)
 
     return JsonResponse({'error': error, 'mensaje': mensaje})
+
+
+
 
 
 #*** EMPRESAS ***#
@@ -303,6 +315,9 @@ def UpdateEmpresa(request, *args, **kwargs):
         return JsonResponse({'error': error, 'mensaje': mensaje})
 
 
+
+
+
 # *** BODEGAS ***#
 
 class BodegasView(LoginRequiredMixin, TemplateView):
@@ -393,6 +408,9 @@ def UpdateBodega(request, *args, **kwargs):
         return JsonResponse({'error': error, 'mensaje': mensaje})
 
 
+
+
+
 # *** ENTRADAS DE PIEZAS *** #
 
 class EntradaPiezasView(LoginRequiredMixin, TemplateView):
@@ -401,34 +419,57 @@ class EntradaPiezasView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['bodegas'] = Bodega.objects.filter(estado=1)
-        context['piezasPrecios'] = PiezasPrecio.objects.select_related('pieza')
+        context['piezas'] = Piezas.objects.filter(estado=1)
+        context['entradasPiezas'] = EntradaPiezas.objects.all()
         return context
 
     def post(self, request, *args, **kwargs):
+        # Guarda EntradasPiezas
+        # Guarda DetalleEntradaPiezas
+        # Atualiza PiezasPrecio
+
         error = False
-        mensaje = ''
-        opcionError = 0  # 1: Existe usuario
+        mensaje = '¡Entrada de piezas registrada!'
+        idEntradaPieza = 0
 
         try:
             with transaction.atomic():
                 descripcion = str(request.POST.get('descripcion'))
+                id_bodega = int(request.POST.get('id_bodega'))
+                estado = int(request.POST.get('estadoActivo'))
+                data = json.loads(request.POST.get('entradas'))
 
                 try:
-                    Piezas.objects.get(descripcion=descripcion)
-                    optionError = 1
-                    error = True
-                    mensaje = 'Ya existe la pieza: ' + descripcion
-                except ObjectDoesNotExist:
-                    optionError = 0
+                    entradaPieza = EntradaPiezas()
+                    entradaPieza.descripcion = descripcion
+                    entradaPieza.save()
+                    id_entrada_pieza = entradaPieza.id
 
-                if optionError == 0:
-                    estadoActivo = bool(request.POST.get('estadoActivo'))
-                    piezas = Piezas(descripcion=descripcion, estado=estadoActivo)
-                    piezas.save()
-                    mensaje = 'Pieza guardada correctamente'
+                    for datos in data:
+
+                        id_pieza = int(datos[0])
+                        cantidad = int(datos[2])
+                        precio = float(datos[3])
+
+                        existe_precio = PiezasPrecio.objects.filter(precio=precio,bodega__id=id_bodega)
+
+                        if existe_precio.exists():
+                            PiezasPrecio.objects.filter(piezas__id=id_pieza,bodega__id=id_bodega).update(cantidad=F('cantidad') + cantidad)
+                        else:
+                            piezasPrecio = PiezasPrecio(pieza_id=id_pieza,cantidad=cantidad,precio=precio,bodega_id=id_bodega)
+                            piezasPrecio.save()
+                            id_piezas_precio = piezasPrecio.id
+
+                            detalleEntradaPiezas = DetalleEntradaPiezas(pieza_precio_id=id_piezas_precio,entrada_pieza_id=id_entrada_pieza,cantidad=cantidad)
+                            detalleEntradaPiezas.save()
+
+
+                except Exception as e:
+                    error = False
+                    mensaje = 'Error al guardar en Entrada Pieza: '+e
 
         except Exception as e:
             error = True
             mensaje = str(e)
 
-        return JsonResponse({'error': error, 'mensaje': mensaje, 'option': optionError})
+        return JsonResponse({'error': error, 'mensaje': mensaje})

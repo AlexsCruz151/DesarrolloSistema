@@ -48,3 +48,7 @@
     color: black !important;
 }
 
+tr th {
+    font-size: 12px !important;
+}
+

@@ -108,7 +108,7 @@ function save() {
                     error: function (error) {
                         Toast.fire({
                             icon: 'error',
-                            title: 'Error de administraciónn',
+                            title: 'Error de administración',
                             timer: 10000
                         });
                     },

@@ -41,7 +41,6 @@ class Piezas(Base):
     descripcion = models.CharField(verbose_name='Descripción', max_length=50, blank=False, null=False)
     codigo = models.CharField(verbose_name='codigo', max_length=20,null=False,blank=False)
     imagen = models.ImageField(upload_to='piezas')
-    cantidad = models.IntegerField(null=False, default=0)
     estado = models.IntegerField(default=1)
 
     class Meta:
@@ -52,6 +51,7 @@ class Piezas(Base):
 
 class PiezasPrecio(Base):
     pieza = models.ForeignKey(Piezas, on_delete=models.PROTECT)
+    bodega = models.ForeignKey(Bodega, on_delete=models.PROTECT)
     cantidad = models.IntegerField(null=False, default=0)
     precio = models.DecimalField(max_digits=8, decimal_places=2)
 
@@ -60,6 +60,27 @@ class PiezasPrecio(Base):
 
     def __str__(self):
         return 'Piezas Precio'
+
+
+class EntradaPiezas(Base):
+    descripcion = models.CharField(verbose_name='Descripción', max_length=100, blank=False, null=False)
+
+    class Meta:
+        verbose_name = 'Entrada Piezas'
+
+    def __str__(self):
+        return 'Entradas Piezas'
+
+class DetalleEntradaPiezas(Base):
+    pieza_precio = models.ForeignKey(PiezasPrecio,on_delete=models.PROTECT)
+    entrada_pieza = models.ForeignKey(EntradaPiezas,on_delete=models.PROTECT)
+    cantidad = models.IntegerField(null=False, default=0)
+
+    class Meta:
+        verbose_name = 'Detalle Entradas Piezas'
+
+    def __str__(self):
+        return 'Detalle Entradas Piezas'
 
 
 class Productos(Base):

@@ -14,7 +14,7 @@
             <div class="container">
                 <h5 class="float-left" style="color:#0d6efd">Entrada de Piezas </h5>
                 <div class="float-left">
-                    <button id="btnAddPieza" type="button" class="btn btn-primary">
+                    <button id="btnAddEntradaPiezas" type="button" class="btn btn-primary">
                         <i class="fas fa-plus-square"> </i> Ingresar piezas
                     </button>
                 </div>
@@ -30,37 +30,25 @@
 
             </div>
             <div class="card-body">
-                <table class="table table-striped table-hover" id="tblBodegas">
+                <table class="table table-striped table-hover" id="tblEntradaPiezas">
                     <thead>
                     <tr>
-                        <th style="font-size: 15px">CÓDIGO</th>
-                        <th style="font-size: 15px">NOMBRE</th>
+                        <th style="font-size: 15px">REGISTRO</th>
                         <th style="font-size: 15px">DESCRIPCIÓN</th>
-                        <th style="font-size: 15px">ESTADO</th>
+                        <th style="font-size: 15px">FECHA GRABACIÓN</th>
                         <th style="font-size: 15px">ACCIONES</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for b in bodegas %}
+                    {% for ep in entradasPiezas %}
                         <tr>
-                            <td style="font-size:15px">{{ b.id }}</td>
-                            <td style="font-size:15px">{{ b.nombre }}</td>
-                            <td style="font-size:15px">{{ b.descripcion }}</td>
-                            <td>
-                                {% if b.estado == 1 %}
-                                    <span class="badge rounded-pill bg-success">Activo</span>
-                                {% else %}
-                                    <span class="badge rounded-pill bg-danger">Inactivo</span>
-                                {% endif %}
-                            </td>
-
+                            <td style="font-size:15px">{{ ep.id }}</td>
+                            <td style="font-size:15px">{{ ep.descripcion }}</td>
+                            <td style="font-size:15px">{{ ep.fecha_grabacion|date:"d/m/Y" }} {{ ep.fecha_grabacion|time:"H:i" }}</td>
                             <td>
                                 <button data-toggle="tooltip" title="Editar empresa" type="button"
-                                        class="btn btn-success btnEdit" data-id="{{ b.id }}"
-                                        data-nombre ="{{ b.nombre }}" data-descripcion="{{ b.descripcion }}" data-estado="{{ b.estado }}"><i class="fas fa-pen"></i></button>
-                                <button data-toggle="tooltip" title="Eliminar empresa" type="button"
-                                        class="btn btn-danger btnDelete" onclick="deleteBodega({{ b.id }})" data-id="{{ b.id }}"><i
-                                        class="fas fa-trash"></i></button>
+                                        class="btn btn-success btnDetalle" data-id="{{ ep.id }}"><i class="fas fa-check"></i></button>
+
                             </td>
                         </tr>
                     {% endfor %}
@@ -70,12 +58,12 @@
         </div>
     </div>
 
-    {# MODAL DE EMPRESA #}
-    <div class="modal fade" id="mdlBodega" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    {# MODAL DE ENTRADA PIEZA #}
+    <div class="modal fade" id="mdlEntradaPiezas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: #d3e1e7">
-                    <h5 class="modal-title" id="exampleModalLabel">AÑADIR BODEGA</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">AÑADIR ENTRADA DE PIEZAS</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -84,30 +72,30 @@
                         <div class="row">
                             <div class="col col-sm-12">
                                 <div class="row">
-                                    <div class="col col-sm-4">
-                                        <label>Código:</label>
-                                        <div class="input-group mb-3">
-                                        <span class="input-group-text" id="basic-addon1"><i
-                                                class="fas fa-fingerprint"></i></span>
-                                            <input disabled id="txtCodigo" type="text" class="form-control"
-                                                   placeholder="Código"
-                                                   aria-label="Codigo"
-                                                   aria-describedby="basic-addon1">
-                                        </div>
-                                    </div>
-                                    <div class="col col-sm-4">
-                                        <label>Nombre:</label>
-                                        <div class="input-group mb-3">
+                                    <div class="col col-sm-3">
+                                        <label>Código Entrada:</label>
+                                        <div class="input-group mb-2">
                                     <span class="input-group-text" id="basic-addon1"><i
                                             class="fas fa-edit"></i></span>
-                                            <input maxlength="50" id="txtNombre" type="text" class="form-control"
-                                                   placeholder="Nombre de bodega"
-                                                   aria-label="correo"
+                                            <input disabled maxlength="50" id="txtCodigo" type="text"
+                                                   class="form-control"
+                                                   placeholder="Código de entrada"
+                                                   aria-label="codigo"
                                                    aria-describedby="basic-addon1">
-                                            <div class="invalid-feedback">Nombre no válido</div>
+                                            <div class="invalid-feedback">Código no válido</div>
                                         </div>
                                     </div>
-                                    <div class="col col-sm-4">
+                                    <div class="col col-sm-3">
+                                        <label>Bodega:</label>
+                                        <select id="selectBodega" class="form-select"
+                                                aria-label="Default select example">
+                                            <option value="0" selected>Seleccione Bodega</option>
+                                            {% for b in bodegas %}
+                                                <option value="{{ b.id }}">{{ b.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col col-sm-2">
                                         <label>Estado:</label>
                                         <div class="input-group mb-3">
                                             <div class="input-group-text">
@@ -121,20 +109,105 @@
                                                    disabled="disabled" value="Activo">
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col col-sm-12">
+
+                                    <div class="col col-sm-4">
                                         <label>Descripción:</label>
-                                        <div class="input-group mb-3">
-                                        <span class="input-group-text" id="basic-addon1"><i
-                                                class="fas fa-edit"></i></span>
-                                            <textarea id="txtDescripcion" type="text" class="form-control"
-                                                   placeholder="Descripción"
-                                                   aria-label="Descripcion"
-                                                   aria-describedby="basic-addon1"></textarea>
+                                        <textarea maxlength="100" id="txtDescripcion" rows="1"
+                                                  class="form-control"></textarea>
+                                        <div class="invalid-feedback">Descripción inválida</div>
+
+                                    </div>
+                                </div>
+
+                                <div class="row border border-1 border-success" style="background-color: #f5f5f5">
+                                    <div class="col col-sm-6">
+                                        <div class="card my-3">
+                                            <div class="card-header d-flex justify-content-between">
+                                                <div class="titulos" style="font-size: 22px; margin:0px">
+                                                    INGRESAR
+                                                </div>
+
+                                            </div>
+                                            <div class="card-body">
+                                                <table class="table table-striped table-hover" id="tblPiezas">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>CÓDIGO</th>
+                                                        <th>DESCRIPCIÓN</th>
+                                                        <th>IMAGEN</th>
+                                                        <th>CANTIDAD ACTUAL</th>
+                                                        <th>PRECIO</th>
+                                                        <th>ESTADO</th>
+                                                        <th>SELECCIONAR</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for pi in piezas %}
+                                                        <tr>
+                                                            <td>{{ pi.id }}</td>
+                                                            <td>{{ pi.descripcion }}</td>
+                                                            <td style="font-size:15px"><img
+                                                                    style="height: 50px; width: 50px"
+                                                                    src="{{ pi.imagen.url }}"
+                                                                    alt="title"/></td>
+                                                            <td>{{ pi.pieza_precio.cantidad|default:"0" }}</td>
+                                                            <td>{{ pi.pieza_precio.precio|default:"0.00" }}</td>
+                                                            <td>
+                                                                {% if pi.estado == 1 %}
+                                                                    <span class="badge rounded-pill bg-success">Activo</span>
+                                                                {% else %}
+                                                                    <span class="badge rounded-pill bg-danger">Inactivo</span>
+                                                                {% endif %}
+                                                            </td>
+
+                                                            <td>
+                                                                <button data-toggle="tooltip" title="Seleccionar pieza"
+                                                                        type="button"
+                                                                        class="btn btn-success btnSelectPieza"
+                                                                        data-id="{{ pi.id }}"
+                                                                        data-descripcion="{{ pi.descripcion }}"
+                                                                        data-estado="{{ pi.estado }}"
+                                                                        data-piezas_precio="{{ pi.piezas_precio.precio }}"
+                                                                ><i
+                                                                        class="fas fa-check-circle"></i></button>
+                                                            </td>
+
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col col-sm-6">
+                                        <div class="card my-3">
+                                            <div class="card-header d-flex justify-content-between"
+                                                 style="background-color: #198754 !important;">
+                                                <div class="titulos" style="font-size: 22px; margin:0px">
+                                                    ENTRADAS A GUARDAR
+                                                </div>
+
+                                            </div>
+                                            <div class="card-body">
+                                                <table class="table table-striped table-hover"
+                                                       id="tblEntradaPiezasTemporal">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>CÓDIGO</th>
+                                                        <th>NOMBRE</th>
+                                                        <th>CANTIDAD</th>
+                                                        <th>PRECIO</th>
+                                                        <th>ELIMINAR</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </form>
@@ -144,6 +217,193 @@
                         Cancelar
                     </button>
                     <button id="btnSave" type="button" class="btn btn-success"><i class="fas fa-save"></i> Guardar
+                        Entrada
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# MODAL DE CANTIDAD DE ENTRADA #}
+    <div class="modal fade" id="mdlCantidad" tabindex="-1" aria-labelledby="exampleModalLabel3" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #b5c7cf">
+                    <h5 class="modal-title" id="exampleModalLabel3">CANTIDAD DE PIEZA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col col-sm-12">
+                                <div class="row">
+                                    <div class="col col-sm-3">
+                                        <label>Código Pieza:</label>
+                                        <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                            <input disabled maxlength="50" id="cantidadTxtCodigo" type="text"
+                                                   class="form-control"
+                                                   placeholder="Código de entrada"
+                                                   aria-label="codigo"
+                                                   aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <div class="col col-sm-9">
+                                        <label>Nombre Pieza:</label>
+                                        <input disabled maxlength="50" id="cantidadTxtDescripcion" type="text"
+                                               class="form-control"
+                                               placeholder="Descripción Pieza"
+                                               aria-label="codigo"
+                                               aria-describedby="basic-addon1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col col-sm-4">
+                                <label>Cantidad:</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                    <input maxlength="10" id="cantidadTxtCantidad" type="text"
+                                           class="form-control"
+                                           placeholder="Cantidad Pieza"
+                                           aria-label="codigo"
+                                           aria-describedby="basic-addon1">
+                                    <div class="invalid-feedback">Ingrese cantidad de piezas</div>
+                                </div>
+                            </div>
+
+                            <div class="col col-sm-4">
+                                <label>Precio:</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                    <input maxlength="10" id="cantidadTxtPrecio" type="text"
+                                           class="form-control"
+                                           placeholder="Precio Pieza"
+                                           aria-label="Precio"
+                                           aria-describedby="basic-addon1">
+                                    <div class="invalid-feedback">Ingrese el precio de pieza</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button id="btnSaveCantidad" type="button" class="btn btn-success"><i class="fas fa-save"></i>
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# MODAL DETALLE ENTRADA #}
+    <div class="modal fade" id="mdlDetalleEntrada" tabindex="-1" aria-labelledby="exampleModalLabel4" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #d3e1e7">
+                    <h5 class="modal-title" id="exampleModalLabel4">DETALLE DE ENTRADA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form enctype="multipart/form-data">
+
+                        <div class="row">
+                            <div class="col col-sm-12">
+                                <div class="row">
+                                    <div class="col col-sm-3">
+                                        <label>Código Entrada:</label>
+                                        <div class="input-group mb-2">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                            <input disabled maxlength="50" id="txtDetalleCodigo" type="text"
+                                                   class="form-control"
+                                                   placeholder="Código de entrada"
+                                                   aria-label="codigo"
+                                                   aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <div class="col col-sm-3">
+                                        <label>Bodega:</label>
+                                        <div class="input-group mb-2">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                            <input disabled maxlength="50" id="txtDetalleBodega" type="text"
+                                                   class="form-control"
+                                                   placeholder="Bodega"
+                                                   aria-label="bodega"
+                                                   aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <div class="col col-sm-2">
+                                        <label>Estado:</label>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-text">
+                                                <input id="checkDetalleActivo" class="form-check-input mt-0" type="checkbox"
+                                                       value=""
+                                                       checked
+                                                       aria-label="Checkbox for following text input">
+                                            </div>
+                                            <input type="text" class="form-control"
+                                                   aria-label="Text input with checkbox" placeholder="Activo"
+                                                   disabled="disabled" value="Activo">
+                                        </div>
+                                    </div>
+
+                                    <div class="col col-sm-4">
+                                        <label>Descripción:</label>
+                                        <textarea maxlength="100" id="txtDetalleDescripcion" rows="1"
+                                                  class="form-control"></textarea>
+
+                                    </div>
+                                </div>
+
+                                <div class="row border border-1 border-success" style="background-color: #f5f5f5">
+                                    <div class="col col-sm-12">
+                                        <div class="card my-12">
+                                            <div class="card-header d-flex justify-content-between"
+                                                 style="background-color: #198754 !important;">
+                                                <div class="titulos" style="font-size: 22px; margin:0px">
+                                                    ENTRADAS A GUARDAR
+                                                </div>
+
+                                            </div>
+                                            <div class="card-body">
+                                                <table class="table table-striped table-hover"
+                                                       id="tblEntradaPiezasTemporal">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>CÓDIGO</th>
+                                                        <th>NOMBRE</th>
+                                                        <th>CANTIDAD</th>
+                                                        <th>PRECIO</th>
+                                                        <th>ELIMINAR</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button id="btnSave" type="button" class="btn btn-success"><i class="fas fa-save"></i> Guardar
+                        Entrada
                     </button>
                 </div>
             </div>

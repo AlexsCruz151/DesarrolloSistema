@@ -52,7 +52,8 @@
 
 
                             <td style="font-size:15px"><img style="height: 50px; width: 50px" src="{{ p.imagen.url }}"
-                                                            alt="title"/></td>
+                                                            alt="title"
+                            /></td>
 
                             <td>
                                 {% if p.estado == 1 %}
@@ -270,9 +271,9 @@
                             timer: 10000
                         });
 
-                         var tr = $('<tr>');
-                         tr.append('<td><div class="alert alert-danger" role="alert"> No hay entradas para esta pieza </div></td>');
-                         $('#tblDetallePrecios').append(tr);
+                        var tr = $('<tr>');
+                        tr.append('<td><div class="alert alert-danger" role="alert"> No hay entradas para esta pieza </div></td>');
+                        $('#tblDetallePrecios').append(tr);
 
                     } else {
                         $.each(data, function (index, element) {
@@ -289,7 +290,7 @@
                 error: function (error) {
                     Toast.fire({
                         icon: 'error',
-                        title: 'Error de administraciónn',
+                        title: 'Error de administración',
                         timer: 10000
                     });
                 },
@@ -377,7 +378,7 @@
                             error: function (error) {
                                 Toast.fire({
                                     icon: 'error',
-                                    title: 'Error de administraciónn',
+                                    title: 'Error de administración',
                                     timer: 10000
                                 });
                             },
@@ -453,7 +454,7 @@
                             error: function (error) {
                                 Toast.fire({
                                     icon: 'error',
-                                    title: 'Error de administraciónn',
+                                    title: 'Error de administración',
                                     timer: 10000
                                 });
                             },
@@ -552,15 +553,15 @@
 
             // Solamente letra
             $("#txtDescripcion").on("input", function () {
-                var value = $(this).val().replace(/[^a-zA-Z]+/g, '');
+                var value = $(this).val().replace(/[^a-zA-Z0-9\s]+/g, '');
                 $(this).val(value);
             });
 
             // Solamente numero
             $("#txtCodigoReferencia").on("input", function () {
                 var value = $(this).val();
-                if (!/^\d+$/.test(value)) {
-                    $(this).val(value.replace(/[^\d]+/g, ''));
+                if (!/^[a-zA-Z0-9]+$/.test(value)) {
+                    $(this).val(value.replace(/[^a-zA-Z0-9]+/g, ''));
                 }
             });
 
