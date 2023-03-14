@@ -335,7 +335,7 @@
                 datos.append('estadoActivo', estadoActivo);
                 datos.append('file', document.getElementById("imagen").files[0]);
 
-                alertify.confirm('CONFIRMACIÓN', '¿Dsea guardar la Pieza?', function () {
+                alertify.confirm('CONFIRMACIÓN', '¿Desea guardar la Pieza?', function () {
                         $.ajax({
                             type: 'POST',
                             url: "{% url 'public:piezas'%} ",

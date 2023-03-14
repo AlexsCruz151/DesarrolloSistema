@@ -72,14 +72,14 @@
                 <div class="nav">
                     <a class="nav-link" href="{% url 'core:home' %}">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-home"></i></div>
-                        Inicio
+                        INICIO
                     </a>
 
                     {# USUARIOS #}
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#usuarios"
                        aria-expanded="false" aria-controls="usuarios">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-user"></i></div>
-                        Usuarios
+                        USUARIOS
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="usuarios" aria-labelledby="headingOne"
@@ -111,7 +111,7 @@
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#ventas"
                        aria-expanded="false" aria-controls="clientes">
                         <div class="sb-nav-link-icon icon_menu"><i class="fa fa-exchange-alt"></i></div>
-                        Ventas
+                        VENTAS
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="ventas" aria-labelledby="headingOne"
@@ -127,7 +127,7 @@
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#bodega"
                        aria-expanded="false" aria-controls="movimientos">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-warehouse"></i></div>
-                        Ingresos
+                        INGRESOS
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="bodega" aria-labelledby="headingOne"
@@ -138,12 +138,25 @@
                         </nav>
                     </div>
 
+                    {# MANUFACTURA #}
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#manofactura"
+                       aria-expanded="false" aria-controls="manofactura">
+                        <div class="sb-nav-link-icon icon_menu"><i class="fas fa-truck"></i></div>
+                        MANO FACTURA
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="manofactura" aria-labelledby="headingOne"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{% url 'public:manofacturaProductos' %}">Productos</a>
+                        </nav>
+                    </div>
 
                     {# TRASLADOS #}
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#movimientos"
                        aria-expanded="false" aria-controls="movimientos">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-truck"></i></div>
-                        Traslado
+                        TRASLADO
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="movimientos" aria-labelledby="headingOne"
@@ -158,7 +171,7 @@
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productos"
                        aria-expanded="false" aria-controls="productos">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-store"></i></div>
-                        Catálogos
+                        CATÁLOGO
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="productos" aria-labelledby="headingOne"
@@ -167,7 +180,7 @@
                             <a class="nav-link" href="{% url 'public:bodega' %}">Bodegas</a>
                             <a class="nav-link" href="{% url 'public:categoria' %}">Categorías</a>
                             <a class="nav-link" href="{% url 'public:piezas' %}">Piezas</a>
-                            <a class="nav-link" href="{% url 'public:piezas' %}">Productos</a>
+                            <a class="nav-link" href="{% url 'public:productos' %}">Productos</a>
                             <a class="nav-link" href="{% url 'public:empresa' %}">Empresas</a>
                         </nav>
                     </div>
@@ -176,7 +189,7 @@
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#configuracion"
                        aria-expanded="false" aria-controls="configuracion">
                         <div class="sb-nav-link-icon icon_menu"><i class="fas fa-cog"></i></div>
-                        Configuración
+                        CONFIGURACIÓN
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="configuracion" aria-labelledby="headingOne"

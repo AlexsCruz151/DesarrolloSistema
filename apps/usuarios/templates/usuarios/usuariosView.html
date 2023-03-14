@@ -304,7 +304,7 @@
                 datos['estadoActivo'] = estadoActivo;
                 datos['contrasenia'] = contraseniaDos;
 
-                alertify.confirm('CONFIRMACIÓN', '¿Dsea guardar usuario?', function () {
+                alertify.confirm('CONFIRMACIÓN', '¿Desea guardar usuario?', function () {
                         $.ajax({
                             type: 'POST',
                             url: "{% url 'usuarios:registrar'%} ",

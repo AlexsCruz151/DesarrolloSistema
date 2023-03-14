@@ -1,10 +1,12 @@
 var gId = null;
+var gIdProducto = null;
 
 
 $(document).ready(function () {
 
     validarInputs();
-    estadoContenedorPrecios(0);
+
+    $('#tblAddPieza').DataTable(window.configAjax);
 
     $("#btnAddEntradaPiezas").click(function () {
         gId = null;
@@ -124,18 +126,24 @@ $(document).ready(function () {
     });
 
     $(".btnEdit").click(function () {
-        estadoContenedorPrecios(1); // Mostramos detalle de precios
+
         let id = $(this).data('id');
-        gId = id;
+        gIdProducto = id;
         let descripcion = $(this).data('descripcion');
         let codigoReferencia = $(this).data('codigo');
         $("#txtCodigo").val(id);
         $("#txtCodigoReferencia").val(codigoReferencia);
         $("#txtDescripcion").val(descripcion);
-        $("#mdlPieza").modal("show");
+        $("#mdlPiezas").modal("show");
 
-        getDetallePrecios(); // Muestra los detalles de los precios
+        // Si tiene piezas las carga
+        getDetallesProductos();
     });
+
+    $("#btnAddPieza").click(function () {
+        $("#mdlAddPieza").modal("show");
+    });
+
 
     // Mostrar detalle de la entrada
     $(".btnDetalle").click(function () {
@@ -180,7 +188,7 @@ $(document).ready(function () {
                         row.append($('<td>').text(detalle.piezas_id));
                         row.append($('<td>').text(detalle.nombre_pieza));
                         row.append($('<td>').text(detalle.cantidad));
-                        row.append($('<td>').text("C$ " + detalle.precio));
+                        row.append($('<td>').text(detalle.precio));
                         $('#tblDetalleEntradas tbody').append(row);
 
                         totalCantidad += detalle.cantidad;
@@ -204,14 +212,144 @@ $(document).ready(function () {
 
     });
 
+    // Eliminar pieza de tabla temporal
+    $(".btnDeletePiezaTemporal").click(function () {
+
+        alertify.confirm('CONFIRMACIÓN', '¿Desea eliminar el registro?', function () {
+                var row = $(this).closest('tr');
+                row.remove();
+            }
+            , function () {
+            }).set('labels', {ok: 'Aceptar', cancel: 'Cancelar'},);
+    });
+
+
 });
+
+function getDetallesProductos() {
+    let id_producto = gIdProducto;
+    let datos = new FormData();
+    datos.append('csrfmiddlewaretoken', $("input[name='csrfmiddlewaretoken']").val());
+    datos.append('get', 1); // Leer detalle de piezas
+    datos.append('id_producto', id_producto); // Id de la pieza
+
+    $.ajax({
+        type: 'POST',
+        url: "/getmanofacturaproductos/",
+        data: datos,
+        dataType: 'json',
+        cache: false,
+        processData: false,  // importante
+        contentType: false, // importante
+        enctype: 'multipart/form-data',  // and here
+        success: function (datos) {
+
+            if (datos.length === 0) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Sin detalle de piezas',
+                    timer: 5000
+                });
+            } else {
+
+                $.each(datos, function (index, detalle) {
+                    var row = $('<tr>');
+                    row.append($('<td>').text(detalle.id_pieza));
+                    row.append($('<td>').text(detalle.codigo));
+                    row.append($('<td>').text(detalle.nombre));
+                    row.append($('<td>').text( detalle.cantidad));
+                    row.append($('<td>').html("<button type='button' class='btn btn-danger' onclick='deleteDetalleTemporal(this)'><i class='fas fa-trash'></i></button>"));
+                    $('#tblPiezasTemporal tbody').append(row);
+                });
+            }
+        },
+        error: function (error) {
+            Toast.fire({
+                icon: 'error',
+                title: 'Error de administración',
+                timer: 10000
+            });
+        },
+    });
+
+}
+
+// Agregar pieza
+function agregarPiezaTemporal(thiss) {
+
+    let row = $(thiss).closest('tr');
+    let codigo = row.find('td:eq(0)').text();
+    let codigoReferencia = row.find('td:eq(1)').text();
+    let descripcion = row.find('td:eq(2)').text();
+    let encontrado = false;
+
+    $("#tblPiezasTemporal tbody tr").each(function () {
+        var valorPrimeraColumna = $(this).find("td:first").text();
+        if (valorPrimeraColumna === codigoReferencia) {
+            encontrado = true;
+            return false;
+        }
+    });
+
+    if (!encontrado) {
+        var fila = $(thiss).closest('tr');
+        var cantidad = fila.find('input[type="text"]').val().trim();
+
+        if (cantidad === "")
+            Toast.fire({
+                icon: 'error',
+                title: 'Ingrese la cantidad',
+                timer: 5000
+            });
+        else {
+            $("#tblPiezasTemporal tbody").append("<tr><td>" + codigo + "</td><td>" + codigoReferencia + "</td><td>" + descripcion + "</td><td>" + cantidad + "</td><td><button type='button' class='btn btn-danger' onclick='deleteDetalleTemporal(this)'><i class='fas fa-trash'></i></button> </td></th></tr>");
+            Toast.fire({
+                icon: 'success',
+                title: 'Pieza agregada correctamente',
+                timer: 5000
+            });
+        }
+    } else
+        Toast.fire({
+            icon: 'error',
+            title: 'La pieza ya existe en la tabla',
+            timer: 5000
+        });
+}
 
 // Eliminar detalle en tabla temporal
 function deleteDetalleTemporal(thiss) {
 
     alertify.confirm('CONFIRMACIÓN', '¿Desea eliminar el registro?', function () {
             var filaAEliminar = $(thiss).closest('tr');
+            let codigo = filaAEliminar.find('td:eq(0)').text();
             filaAEliminar.remove();
+
+            let datos = new FormData();
+            datos.append('csrfmiddlewaretoken', $("input[name='csrfmiddlewaretoken']").val());
+            datos.append('update', 1); // Eliminar pieza del detalle del producto
+            datos.append('codigo', codigo);
+            datos.append('id_producto', gIdProducto);
+            $.ajax({
+                type: 'POST',
+                url: "/updatemanofacturaproductos/",
+                data: datos,
+                dataType: 'json',
+                cache: false,
+                processData: false,  // importante
+                contentType: false, // importante
+                enctype: 'multipart/form-data',  // and here
+                success: function (data) {
+
+                },
+                error: function (error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error de administración',
+                        timer: 10000
+                    });
+                },
+            });
         }
         , function () {
         }).set('labels', {ok: 'Aceptar', cancel: 'Cancelar'},);
@@ -273,31 +411,10 @@ function getDetallePrecios() {
 // GUARDAR USUARIO
 function save() {
 
-    let descripcion = $("#txtDescripcion").val().trim();
-    let id_bodega = $("#selectBodega").val().trim();
-    let entradas = [];
-    let estadoActivo = 0;
+    let piezas = [];
     let estadoSave = true
 
-    if ($("#checkActivo").is(":checked"))
-        estadoActivo = 1;
-
-    if (descripcion === "") {
-        estadoSave = false;
-        $("#txtDescripcion").addClass("is-invalid");
-    }
-
-    if (id_bodega === "0") {
-        estadoSave = false;
-        Toast.fire({
-            icon: 'error',
-            title: 'Seleccione bodega',
-            timer: 5000
-        });
-
-    }
-
-    $('#tblEntradaPiezasTemporal tbody tr').each(function () {
+    $('#tblPiezasTemporal tbody tr').each(function () {
         var row = [];
         // Recorrer todas las celdas de la fila
         $(this).find('td:not(:last-child)').each(function () {
@@ -305,10 +422,10 @@ function save() {
             row.push($(this).text());
         });
         // Agregar la fila al arreglo de datos
-        entradas.push(row);
+        piezas.push(row);
     });
 
-    if (entradas.length === 0) {
+    if (piezas.length === 0) {
         Toast.fire({
             icon: 'error',
             title: 'No ha seleccionado piezas',
@@ -321,15 +438,13 @@ function save() {
 
         let datos = new FormData();
         datos.append('csrfmiddlewaretoken', $("input[name='csrfmiddlewaretoken']").val());
-        datos.append('descripcion', descripcion);
-        datos.append('id_bodega', id_bodega);
-        datos.append('estadoActivo', estadoActivo);
-        datos.append('entradas', JSON.stringify(entradas));
+        datos.append('id_producto', gIdProducto);
+        datos.append('piezas', JSON.stringify(piezas));
 
-        alertify.confirm('CONFIRMACIÓN', '¿Desea guardar la Entrada?', function () {
+        alertify.confirm('CONFIRMACIÓN', '¿Desea guardar productos con sus detalles de piezas?', function () {
                 $.ajax({
                     type: 'POST',
-                    url: "/entradapiezas/",
+                    url: "/manofacturaproductos/",
                     data: datos,
                     dataType: 'json',
                     cache: false,
@@ -533,6 +648,14 @@ function validarInputs() {
         var value = $(this).val();
         if (!/^(\d+)?([.]?\d{0,2})?$/.test(value)) {
             $(this).val(value.replace(/[^\d.]/g, ''));
+        }
+    });
+
+    // Solamente nùmeros
+    $("#txtCantidad").on("input", function () {
+        var value = $(this).val();
+        if (!/^[0-9]+$/.test(value)) {
+            $(this).val(value.replace(/[^0-9]+/g, ''));
         }
     });
 

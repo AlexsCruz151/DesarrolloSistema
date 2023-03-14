@@ -15,4 +15,8 @@ urlpatterns = [
     path('updatebodega/', UpdateBodega, name='updateBodega'),
     path('entradapiezas/', EntradaPiezasView.as_view(), name='entradaPiezas'),
     path('getdetalleentrada/', GetDetalleEntrada, name='detalleEntrada'),
+    path('productos/', ProductosView.as_view(), name='productos'),
+    path('manofacturaproductos/', ManofacturaProductosView.as_view(), name='manofacturaProductos'),
+    path('getmanofacturaproductos/', GetManofacturaProductos, name='getmanofacturaproductos'),
+    path('updatemanofacturaproductos/', UpdateManofacturaProductos, name='updatemanofacturaproductos'),
 ]

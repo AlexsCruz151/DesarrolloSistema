@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
-from ..public.models import Categoria, Piezas, Empresa, Bodega, PiezasPrecio, EntradaPiezas, DetalleEntradaPiezas
+from ..public.models import Categoria, Piezas, Empresa, Bodega, PiezasPrecio, EntradaPiezas, DetalleEntradaPiezas, Productos, Productospiezas
 from django.db import transaction, connection
 from django.http import HttpResponseNotFound, JsonResponse
 from django.core.files.base import ContentFile
@@ -492,3 +492,184 @@ def GetDetalleEntrada(request, *args, **kwargs):
         })
 
     return JsonResponse(list(data),safe=False)
+
+
+
+
+
+# *** PRODUCTOS *** #
+
+class ProductosView(LoginRequiredMixin, TemplateView):
+    template_name = 'public/productosView.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['productos'] = Productos.objects.filter(estado=1)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        error = False
+        mensaje = ''
+        opcionError = 0  # 1: Existe descripcion o codigo
+
+        try:
+            with transaction.atomic():
+                descripcion = str(request.POST.get('descripcion'))
+                codigoReferencia = str(request.POST.get('codigo'))
+                cantidad = int(request.POST.get('cantidad'))
+                precio = float(request.POST.get('precio'))
+                tipo = int(request.POST.get('tipo'))
+                id_usuario = request.user.id
+
+                try:
+                    Productos.objects.get(Q(descripcion=descripcion) | Q(codigo=codigoReferencia),estado__in=[0,1])
+                    opcionError = 1
+                    error = True
+                    mensaje = 'Ya existe la producto con la misma descripción o el mismo código de referencia'
+                except ObjectDoesNotExist:
+                    optionError = 0
+
+                if optionError == 0:
+                    estadoActivo = int(request.POST.get('estadoActivo'))
+                    producto = Productos(codigo=codigoReferencia, descripcion=descripcion, estado=estadoActivo,usuario_grabacion_id=id_usuario,cantidad=cantidad,precio=precio, tipo=tipo)
+                    imagen = request.FILES['file']
+                    producto.imagen = imagen
+                    producto.save()
+                    mensaje = 'Producto guardado correctamente'
+
+        except Exception as e:
+            error = True
+            mensaje = str(e)
+
+        return JsonResponse({'error': error, 'mensaje': mensaje, 'option': opcionError})
+
+def UpdateProducto(request, *args, **kwargs):
+    error = False
+    mensaje = ''
+
+    id = str(request.POST.get('id'))
+    piezas = Piezas.objects.get(id=id)
+    id_usuario = request.user.id
+
+    try:
+        with transaction.atomic():
+            piezas.descripcion = str(request.POST.get("descripcion"))
+            piezas.estado = bool(request.POST.get("estadoActivo"))
+            piezas.usuario_modificacion_id = id_usuario
+            piezas.save()
+            mensaje = 'Pieza Actualizada'
+
+    except Exception as e:
+        error = True
+        mensaje = str(e)
+
+    return JsonResponse({'error': error, 'mensaje': mensaje})
+
+def GetProducto(request, *args, **kwargs):
+
+    get = int(request.POST.get('get'))
+
+    if get == 1: # Extraer detalle de precios
+        detalle_precios = PiezasPrecio.objects.filter(pieza__id=1)
+        return JsonResponse(list(detalle_precios),safe=False)
+
+
+
+
+
+# *** MANOFACTURA DE PRODUCTOS *** #
+
+class ManofacturaProductosView(LoginRequiredMixin, TemplateView):
+    template_name = 'public/manofacturaProductosView.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['productos'] = Productos.objects.filter(estado=1,tipo=1)
+        context['piezas'] = Piezas.objects.filter(estado=1)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        # Guarda EntradasPiezas
+        # Guarda DetalleEntradaPiezas
+        # Atualiza PiezasPrecio
+
+        error = False
+        mensaje = '¡Piezas de productos registrada!'
+        idEntradaPieza = 0
+        existePieza = False
+
+        try:
+            with transaction.atomic():
+                id_producto = int(request.POST.get('id_producto'))
+                data = json.loads(request.POST.get('piezas'))
+
+                try:
+                    for datos in data:
+
+                        id_pieza = int(datos[0])
+                        id_producto = int(id_producto)
+                        cantidad = int(datos[3])
+
+                        existe = Productospiezas.objects.filter(producto__id=id_producto,pieza__id=id_pieza, estado=1).exists()
+
+                        if existe:
+                            existePieza = True
+                        else:
+                            productosPiezas = Productospiezas(pieza_id=id_pieza,producto_id=id_producto,cantidad=cantidad)
+                            productosPiezas.save()
+
+                except Exception as e:
+                    error = False
+                    mensaje = 'Error al guardar Detalle de pieza: '+str(e)
+
+        except Exception as e:
+            error = True
+            mensaje = str(e)
+
+        return JsonResponse({'error': error, 'mensaje': mensaje})
+
+def UpdateManofacturaProductos(request, *args, **kwargs):
+    error = False
+    mensaje = ''
+
+    #1: Eliminar pieza del detalle
+    update = int(request.POST.get('update'))
+
+    if update == 1:
+        codigoPieza = int(request.POST.get('codigo'))
+        id_producto = int(request.POST.get('id_producto'))
+
+        try:
+            existe = Productospiezas.objects.filter(producto__id=id_producto,pieza__id=codigoPieza).exists()
+
+            if existe:
+                productoPieza = Productospiezas.objects.get(producto__id=id_producto,pieza__id=codigoPieza)
+                productoPieza.estado = -1
+                productoPieza.save()
+
+        except Exception as e:
+            error = True
+
+        return JsonResponse({'error':error,'mensaje':"Actualizado con éxito"})
+
+
+def GetManofacturaProductos(request, *args, **kwargs):
+
+    get = int(request.POST.get('get'))
+
+    if get == 1: # Extraer detalle piezas
+
+        id_producto = request.POST.get('id_producto')
+
+        detallePiezas = Productospiezas.objects.select_related('pieza','producto').filter(producto_id=id_producto,estado__in=[1])
+        data = []
+
+        for detalle in detallePiezas:
+            data.append({
+                'id_pieza': detalle.pieza.id,
+                'codigo': detalle.pieza.codigo,
+                'nombre': detalle.pieza.descripcion,
+                'cantidad': detalle.cantidad
+            })
+
+        return JsonResponse(list(data),safe=False)

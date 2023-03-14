@@ -84,10 +84,12 @@ class DetalleEntradaPiezas(Base):
 
 
 class Productos(Base):
+    codigo = models.CharField(verbose_name='codigo', max_length=20, null=False, blank=False)
     descripcion = models.CharField(verbose_name='Descripción', max_length=50, blank=False, null=False)
     imagen = models.ImageField(upload_to='productos')
     cantidad = models.IntegerField(null=False, default=0)
     precio = models.DecimalField(max_digits=8, decimal_places=2)
+    tipo = models.IntegerField(null=False,default=1) # 1: Productos con piezas.  2: Productos normales
     estado = models.IntegerField(default=1)
 
     class Meta:
@@ -99,6 +101,7 @@ class Productos(Base):
 class Productospiezas(Base):
     producto = models.ForeignKey(Productos,on_delete=models.PROTECT)
     pieza = models.ForeignKey(Piezas,on_delete=models.PROTECT)
+    cantidad = models.IntegerField(null=False,default=1)
     estado = models.IntegerField(default=1)
 
     class Meta:

@@ -207,7 +207,7 @@
                 datos['descripcion'] = descripcion;
                 datos['estadoActivo'] = estadoActivo;
 
-                alertify.confirm('CONFIRMACIÓN', '¿Dsea guardar categoría?', function () {
+                alertify.confirm('CONFIRMACIÓN', '¿Desea guardar categoría?', function () {
                         $.ajax({
                             type: 'POST',
                             url: "{% url 'public:categoria'%} ",

@@ -1,0 +1,197 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block content %}
+
+    {% csrf_token %}
+
+    {# REGISTROS DE PRODUCTOS #}
+    <div class="container">
+
+        {# MENU #}
+        <nav class="navbar navbar-light bg-white" style="margin-top:10px;  border-left: 3px solid #0d6efd">
+            <div class="container">
+                <h5 class="float-left" style="color:#0d6efd">PRODUCTOS </h5>
+                <div class="float-left">
+                    <button id="btnAddProducto" type="button" class="btn btn-primary">
+                        <i class="fas fa-plus-square"> </i> Agregar Producto
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        {# REGISTROS #}
+        <div class="card my-3">
+            <div class="card-header d-flex justify-content-between" style="background-color: #17627e30 !important">
+                <div class="titulos" style="color:black !important; font-size: 22px">
+                    Registro
+                </div>
+
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover" id="tblProductos">
+                    <thead>
+                    <tr>
+                        <th style="font-size: 15px">CÓDIGO</th>
+                        <th style="font-size: 15px">CÓDIGO REFERENCIA</th>
+                        <th style="font-size: 15px">DESCRIPCIÓN</th>
+                        <th style="font-size: 15px">IMAGEN</th>
+                        <th style="font-size: 15px">CANTIDAD</th>
+                        <th style="font-size: 15px">PRECIO</th>
+                        <th style="font-size: 15px">TIPO</th>
+                        <th style="font-size: 15px">ESTADO</th>
+                        <th style="font-size: 15px">ACCIÓN</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in productos %}
+                        <tr>
+                            <td style="font-size:15px">{{ p.id }}</td>
+                            <td style="font-size:15px">{{ p.codigo }}</td>
+                            <td style="font-size:15px">{{ p.descripcion }}</td>
+                            <td style="font-size:15px"><img style="height: 50px; width: 50px" src="{{ p.imagen.url }}"
+                                                            alt="title"
+                            /></td>
+                            <td style="font-size:15px">{{ p.cantidad }}</td>
+                            <td style="font-size:15px">{{ p.precio }}</td>
+                            <td>
+                                {% if p.tipo == 1 %}
+                                    <span class="badge rounded-pill bg-success">Con Piezas</span>
+                                {% else %}
+                                    <span class="badge rounded-pill bg-info">Sin Piezas</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if p.estado == 1 %}
+                                    <span class="badge rounded-pill bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge rounded-pill bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button data-toggle="tooltip" title="Editar usuario" type="button"
+                                        class="btn btn-success btnEdit" data-id="{{ p.id }}"
+                                        data-codigo="{{ p.codigo }}" data-imagen="{{ p.imagen }}"
+                                        data-descripcion="{{ p.descripcion }}"><i class="fas fa-pen"></i></button>
+                                <button onclick="deletePieza({{ e.id }})" data-toggle="tooltip" title="Eliminar usuario"
+                                        type="button"
+                                        class="btn btn-danger btnDelete" data-id="{{ p.id }}"><i
+                                        class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# MODAL PARA REGISTRAR PRODUCTOS #}
+    <div class="modal fade" id="mdlProducto" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #d3e1e7">
+                    <h5 class="modal-title" id="exampleModalLabel">AÑADIR PRODUCTOS</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col col-sm-6">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-fingerprint"></i></span>
+                                    <input disabled id="txtCodigo" type="text" class="form-control" placeholder="Código"
+                                           aria-label="Codigo"
+                                           aria-describedby="basic-addon1">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-code"></i></span>
+                                    <input maxlength="20" id="txtCodigoReferencia" type="text" class="form-control"
+                                           placeholder="Código de Referencia"
+                                           aria-label="codigoreferencia"
+                                           aria-describedby="basic-addon1">
+                                    <div class="invalid-feedback">Código de Referencia</div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-text">
+                                        <input id="checkActivo" class="form-check-input mt-0" type="checkbox" value=""
+                                               checked
+                                               aria-label="Checkbox for following text input">
+                                    </div>
+                                    <input placeholder="Estado" type="text" class="form-control"
+                                           aria-label="Text input with checkbox"
+                                           disabled="disabled" value="Activo">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <select id="selectTipo" class="form-select"
+                                            aria-label="Default select example">
+                                        <option value="0" selected>Seleccione Tipo Producto</option>
+                                        <option value="1" >Con Piezas</option>
+                                        <option value="2" >Sin Piezas</option>
+                                    </select>
+                                    <div class="invalid-feedback">Seleccione tipo de producto</div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                    <input maxlength="50" id="txtDescripcion" type="text" class="form-control"
+                                           placeholder="Descripción de la Pieza"
+                                           aria-label="correo"
+                                           aria-describedby="basic-addon1">
+                                    <div class="invalid-feedback">Descripción no válida</div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                    <input maxlength="50" id="txtCantidad" type="text" class="form-control"
+                                           placeholder="Cantidad de piezas"
+                                           aria-label="piezas"
+                                           aria-describedby="basic-addon1">
+                                </div>
+                                 <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-edit"></i></span>
+                                    <input maxlength="50" id="txtPrecio" type="text" class="form-control"
+                                           placeholder="Precio de Producto"
+                                           aria-label="precio"
+                                           aria-describedby="basic-addon1">
+                                </div>
+                            </div>
+                            <div class="col col-sm-6">
+                                <div class="form-group">
+                                    <img id="preview" src="#" alt="image preview"
+                                         style="background-color: deepskyblue;display: block; height: 250px; width:initial"
+                                         accept=".jpeg,.jpg,.png">
+                                    <input style="margin-top:10px;background-color: deepskyblue; padding: 5px; width: 100%"
+                                           type="file" id="imagen" name="file" onchange="loadImage()">
+                                    <div class="invalid-feedback">No ha seleccionado una imágen</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button id="btnSave" type="button" class="btn btn-success"><i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block modals %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'public/functionProductos.js' %}"></script>
+{% endblock %}
